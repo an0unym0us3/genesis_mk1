@@ -11,26 +11,27 @@ class Website:
         self.review = dict()
         self.score = 0
 
-    def update_review(self, the_user, the_review=None):
-        # if there was no input to the review, then it is understood that the review of the user must be deleted
-        if the_review is None:
-            # The score will be the original total score - the users score, divided by the new total (which is one less)
-            self.score = (self.score * len(self.review) - self.review[the_user][1]) / (len(self.review) - 1)
-            del self.review[the_user]
-        else:
-            # try to get the old review of the user
-            try:
-                old_score = self.review[the_user][1]
-                # the total number of reviews is the same, but the difference between the old and new is adjusted
-                self.score =(self.score * (len(self.review)) + the_review[1] - old_score) / len(self.review)
-            # if the old review doesn't exist then create a new one
-            except KeyError:
-                # just add it to the total sum and divide accounting for 1 more review, which is this one
-                self.score =(self.score * (len(self.review)) + the_review[1]) / (len(self.review)+1)
-            # actually record the review
-            self.review[the_user] = the_review
-
-
+    def add_reivew(self, the_user, the_review):
+        # Just add the new score to the total sum and divide by the new total number of reviews (previous+1)
+        self.score =(self.score * (len(self.review)) + the_review[1]) / (len(self.review)+1)
+        # actually record the review
+        self.review[the_user] = the_review
+    
+    def update_review(self, the_user, the_review):
+        # try to get the old review of the user
+        old_score = self.review[the_user][1]
+        # the total number of reviews is the same, but the difference between the old and new is adjusted
+        self.score =(self.score * (len(self.review)) + the_review[1] - old_score) / len(self.review)
+        # actually record the review
+        self.review[the_user] = the_review
+        
+    
+    def delete_review(self, the_user):
+        # The score will be the original total score minus the users score, divided by the new total (which is one less)
+        self.score = (self.score * len(self.review) - self.review[the_user][1]) / (len(self.review) - 1)
+        #delete the old review
+        del self.review[the_user]
+    
 amazon = Website('https://www.amazon.com/')
 
 amazon.update_review('e', ['This is only for testing purposes and is the first review', 7])
