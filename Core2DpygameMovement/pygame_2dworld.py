@@ -4,7 +4,7 @@ pygame.init()
 window_w, window_h = 1280, 720
 screen = pygame.display.set_mode((window_w, window_h), pygame.RESIZABLE)
 
-screen_coefficient = 5
+screen_coefficient = 6
 true_bg = pygame.image.load('bg.png')
 bg = pygame.transform.scale(true_bg, (true_bg.get_width()*screen_coefficient, true_bg.get_height()*screen_coefficient))
 bgw, bgh = bg.get_width(), bg.get_height()
@@ -14,7 +14,7 @@ player_pos = pygame.Vector2((screen.get_width() - bgw)//2 - spawn_x, (screen.get
 player_img = pygame.image.load('fplayer_wf.png')
 pgw, pgh = player_img.get_width(), player_img.get_height()
 display_center = pygame.Vector2((screen.get_width() - pgw)//2, (screen.get_height() - pgh)//2)
-speed = 8
+speed = 10
 
 # coordinates
 # y=400->-2000 x=-3600->400
