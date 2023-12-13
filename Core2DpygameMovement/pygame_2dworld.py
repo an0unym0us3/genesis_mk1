@@ -34,7 +34,7 @@ while game_run:
     screen.fill((0, 0, 0))
     screen.blit(bg, (player_pos.x, player_pos.y))
 
-    player_img = pygame.image.load(f'{sprite_direction}player_w{leg_cycle[int(this_leg)] if walking else ""}f.png')
+    player_img = pygame.image.load(f'{sprite_direction}player_w{leg_cycle[this_leg] if walking else ""}f.png')
     screen.blit(player_img, (display_center.x, display_center.y))
     walking = False
 
