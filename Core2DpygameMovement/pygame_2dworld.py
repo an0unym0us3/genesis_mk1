@@ -1,16 +1,17 @@
 import pygame, time
 pygame.init()
 
-window_w, window_h = 1280, 720
-screen = pygame.display.set_mode((window_w, window_h), pygame.RESIZABLE)
+window_w, window_h = 1024, 768
+screen = pygame.display.set_mode((window_w, window_h)) #pygame.RESIZABLE)
 
 true_bg = pygame.image.load('bg.png')
+my_font = pygame.font.SysFont('Comic Sans MS', 30)
 
 screen_coefficient = 6
 bg = pygame.transform.scale(true_bg, (true_bg.get_width()*screen_coefficient, true_bg.get_height()*screen_coefficient))
 bgw, bgh = bg.get_width(), bg.get_height()
 
-spawn_x, spawn_y = 100*screen_coefficient, 0*screen_coefficient
+spawn_x, spawn_y = 10*screen_coefficient, 60*screen_coefficient
 player_pos = pygame.Vector2((screen.get_width() - bgw)//2 - spawn_x, (screen.get_height() - bgh)//2 - spawn_y)
 player_img = pygame.image.load('fplayer_wf.png')
 pgw, pgh = player_img.get_width(), player_img.get_height()
@@ -18,12 +19,12 @@ display_center = pygame.Vector2((screen.get_width() - pgw)//2, (screen.get_heigh
 speed = 10
 
 minimap_coefficient = 0.4
-mp_player_coefficient = 0.1
+mp_player_coefficient = 0.12
 mp = pygame.transform.scale(true_bg, (true_bg.get_width()*minimap_coefficient, true_bg.get_height()*minimap_coefficient))
 mp_w, mp_h = mp.get_width(), mp.get_height()
 mp_player = pygame.transform.scale(player_img, (player_img.get_width()*mp_player_coefficient, player_img.get_height()*mp_player_coefficient))
-mp_player_pos = pygame.Vector2(200, 100)
-mp_speed_coefficient = 0.07
+mp_player_pos = pygame.Vector2( mp_w//2 + (spawn_x + 15)*minimap_coefficient/screen_coefficient, mp_h//2 + (spawn_y - 10)*minimap_coefficient/screen_coefficient)
+mp_speed_coefficient = minimap_coefficient/screen_coefficient
 
 # coordinates
 # y=400->-2000 x=-3600->400
@@ -51,6 +52,8 @@ while game_run:
     screen.blit(mp, (10, 10))
     screen.blit(mp_player, (mp_player_pos.x, mp_player_pos.y))
 
+    text_surface = my_font.render(f"{pygame.mouse.get_pos()} {player_pos}", False, (0, 255, 0))
+    screen.blit(text_surface, (0,0))
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w] or keys[pygame.K_UP]:
