@@ -1,159 +1,116 @@
-import pygame, time
-pygame.init()
-
-window_w, window_h = 1024, 768
-screen = pygame.display.set_mode((window_w, window_h)) #pygame.RESIZABLE)
-
-true_bg = pygame.image.load('bg.png')
-my_font = pygame.font.SysFont('Comic Sans MS', 30)
-
-screen_coefficient = 6
-bg = pygame.transform.scale(true_bg, (true_bg.get_width()*screen_coefficient, true_bg.get_height()*screen_coefficient))
-bgw, bgh = bg.get_width(), bg.get_height()
-
-spawn_x, spawn_y = 10*screen_coefficient, 60*screen_coefficient
-player_pos = pygame.Vector2((screen.get_width() - bgw)//2 - spawn_x, (screen.get_height() - bgh)//2 - spawn_y)
-player_img = pygame.image.load('fplayer_wf.png')
-pgw, pgh = player_img.get_width(), player_img.get_height()
-display_center = pygame.Vector2((screen.get_width() - pgw)//2, (screen.get_height() - pgh)//2)
-speed = 10
-
-minimap_coefficient = 0.4
-mp_player_coefficient = 0.12
-mp = pygame.transform.scale(true_bg, (true_bg.get_width()*minimap_coefficient, true_bg.get_height()*minimap_coefficient))
-mp_w, mp_h = mp.get_width(), mp.get_height()
-mp_player = pygame.transform.scale(player_img, (player_img.get_width()*mp_player_coefficient, player_img.get_height()*mp_player_coefficient))
-mp_player_pos = pygame.Vector2( mp_w//2 + (spawn_x + 15)*minimap_coefficient/screen_coefficient, mp_h//2 + (spawn_y - 10)*minimap_coefficient/screen_coefficient)
-mp_speed_coefficient = minimap_coefficient/screen_coefficient
-
-# coordinates
-# y=400->-2000 x=-3600->400
-
-leg_cycle = ['r', '', 'l', '',]
-sprite_direction, this_leg = 'f', 0
-
-walking = False
-
-game_run = True
-clock = pygame.time.Clock()
-while game_run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game_run = False
-
-    screen.fill((0, 0, 0))
-    screen.blit(bg, (player_pos.x, player_pos.y))
-
-    player_img = pygame.image.load(f'{sprite_direction}player_w{leg_cycle[this_leg] if walking else ""}f.png')
-    screen.blit(player_img, (display_center.x, display_center.y))
-    walking = False
-
-    pygame.draw.rect(screen, (164,116,73), [5, 5, mp_w+10, mp_h+10])
-    screen.blit(mp, (10, 10))
-    screen.blit(mp_player, (mp_player_pos.x, mp_player_pos.y))
-
-    text_surface = my_font.render(f"{pygame.mouse.get_pos()} {player_pos}", False, (0, 255, 0))
-    screen.blit(text_surface, (0,0))
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w] or keys[pygame.K_UP]:
-        player_pos.y -= -speed
-        mp_player_pos.y -= speed * mp_speed_coefficient
-        walking = True
-        sprite_direction = 'b'
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        player_pos.y += -speed
-        mp_player_pos.y += speed * mp_speed_coefficient
-        walking = True
-        sprite_direction = 'f'
-    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-        player_pos.x -= -speed
-        mp_player_pos.x -= speed * mp_speed_coefficient
-        walking = True
-        sprite_direction = 'l'
-    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-        player_pos.x += -speed
-        mp_player_pos.x += speed * mp_speed_coefficient
-        walking = True
-        sprite_direction = 'r'
-
-    this_leg = (this_leg + 1) % 3
-    pygame.display.flip()
-    clock.tick(15)
-
-pygame.quit()
-
-
-'''
 import pygame as pg
 pg.init()
 
-window_w, window_h = 1024, 720
+# Setting up basic information like how the pop-up window should be, what font, etc. Variables for convenience
+window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
 window_c = (window_w//2, window_h//2)
+my_font = pg.font.SysFont('Comic Sans MS', 30)
 
+# Loading all core images to be transformed later for different use cases
 true_bg = pg.image.load('bg.png')
+player = pg.image.load('fplayer.png')
 
+# Setting up world map with desired core image multiplier, variables for convenience
 bg_k = 6
 bg = pg.transform.scale(true_bg, (true_bg.get_width()*bg_k, true_bg.get_height()*bg_k))
 bg_w, bg_h = bg.get_width(), bg.get_height()
 
-spawn = (10, 60)
-map_pos = pg.Vector2(bg_w//2 * bg_k - spawn[0], bg_h//2 * bg_k - spawn[1])
+# Giving spawn coordinates (with respect to world map, not core image, therefore no multiplier)
+spn = (55, 630)
 
-player_blit_pos = pg.Vector2(window_c[0], window_c[1])
+# From the center of the window, go back halfway the size of yourself to center, then deviated by the given spawn data
+map_pos = pg.Vector2(window_c[0] - bg_w//2 - spn[0], window_c[1] - bg_h//2 - spn[1])
 
-leg_cycle = ['r', '', 'l', '',]
+# Variables for convenience, From the center of the window, go back halfway your size to center
+pg_w, pg_h = player.get_width(), player.get_height()
+player_blit_pos = pg.Vector2(window_c[0] - pg_w//2, window_c[1] - pg_h//2)
+
+mp_k = 0.4             # When translating core image to minimap
+true_mp_k = mp_k/bg_k  # When translating world map to minimap
+# Shrink using core image multiplier to get minimap size, variables for convenience
+mp = pg.transform.scale(true_bg, (true_bg.get_width()*mp_k, true_bg.get_height()*mp_k))
+mp_w, mp_h = mp.get_width(), mp.get_height()
+# Giving some margin for the minimap, only for aesthetics
+mp_pos = pg.Vector2(10, 10)
+# Transform player size using world map multiplier, as the image is not upscaled and is used as is in the world map
+mplayer = pg.transform.scale(player, (pg_w*true_mp_k, pg_h*true_mp_k))
+# similarly, spawn is with respect to world map, therefore world map multiplier is used
+mp_spn = (spn[0]*true_mp_k, spn[1]*true_mp_k)
+# Account for margins, go halfway across the map, then center the minimap player icon, and finally go to spawn point
+mp_player_pos = pg.Vector2(mp_pos.x + mp_w//2 - mplayer.get_width()//2 + mp_spn[0], mp_pos.y + mp_h//2 - mplayer.get_height()//2 + mp_spn[1])
+
+speed = 10
+leg_cycle = ['_wrf', '', '_wlf', '']
 sprite_direction, this_leg = 'f', 0
+# It's some nice woody color... I think, for the border of the minimap... hence the margins
+mp_border = (164, 116, 73)
 
 walking = False
-
 game_run = True
 clock = pg.time.Clock()
 while game_run:
+    # Very important for closing the actual window
     for event in pg.event.get():
         if event.type == pg.QUIT:
             game_run = False
 
+    # Fill the screen with some color to clear all previous images
     display.fill((0, 0, 0))
-    display.blit(bg, (player_pos.x, player_pos.y))
+    # Drawn the world
+    display.blit(bg, (map_pos.x, map_pos.y))
 
-    player_img = pg.image.load(f'{sprite_direction}player_w{leg_cycle[this_leg] if walking else ""}f.png')
-    display.blit(player_img, (display_center.x, display_center.y))
+    # Determine the state of the player; is he walking? then what direction is he walking?
+    player = pg.image.load(f'{sprite_direction}player{leg_cycle[this_leg] if walking else ""}.png')
+    # Draw the actual player ont he screen
+    display.blit(player, (player_blit_pos.x, player_blit_pos.y))
+    # Assume user has stopped inputting, as we will check it in the if statements again
     walking = False
 
-    pg.draw.rect(display, (164,116,73), [5, 5, mp_w+10, mp_h+10])
-    pg.blit(mp, (10, 10))
-    pg.blit(mp_player, (mp_player_pos.x, mp_player_pos.y))
+    # Draw a solid rectangle before the minimap to LOOK like it has a border... IDK how to actually do it though
+    pg.draw.rect(display, mp_border, [5, 5, mp_w+10, mp_h+10])
+    # Draw the minimap on top of that solid rectangle
+    display.blit(mp, (mp_pos.x, mp_pos.y))
+    # Draw the player on top of the minimap
+    display.blit(mplayer, (mp_player_pos.x, mp_player_pos.y))
 
-    text_surface = my_font.render(f"{pygame.mouse.get_pos()} {player_pos}", False, (0, 255, 0))
-    display.blit(text_surface, (0,0))
+    # Debugging coordinate awesomeness
+    text_surface = my_font.render(f"{pg.mouse.get_pos()} {map_pos}", False, (0, 255, 0))
+    display.blit(text_surface, (0, 0))
 
+    # Here's where the key detection and movement are done
     keys = pg.key.get_pressed()
     if keys[pg.K_w] or keys[pg.K_UP]:
-        player_pos.y -= -speed
-        mp_player_pos.y -= speed * mp_speed_coefficient
+        # The whole world revolves around the player, so the movement has to be mirrored
+        map_pos.y -= -speed
+        # The minimap stays static, so the player has to move... with the world map multiplier
+        mp_player_pos.y -= speed * true_mp_k
+        # Looks like the user pressed a key... again... *sigh*... Time to get walking
         walking = True
+        # As you know which key was pressed, you can figure out where the user is going
         sprite_direction = 'b'
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        player_pos.y += -speed
-        mp_player_pos.y += speed * mp_speed_coefficient
+    if keys[pg.K_s] or keys[pg.K_DOWN]:
+        map_pos.y += -speed
+        mp_player_pos.y += speed * true_mp_k
         walking = True
         sprite_direction = 'f'
-    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-        player_pos.x -= -speed
-        mp_player_pos.x -= speed * mp_speed_coefficient
+    if keys[pg.K_a] or keys[pg.K_LEFT]:
+        map_pos.x -= -speed
+        mp_player_pos.x -= speed * true_mp_k
         walking = True
         sprite_direction = 'l'
-    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-        player_pos.x += -speed
-        mp_player_pos.x += speed * mp_speed_coefficient
+    if keys[pg.K_d] or keys[pg.K_RIGHT]:
+        map_pos.x += -speed
+        mp_player_pos.x += speed * true_mp_k
         walking = True
         sprite_direction = 'r'
 
+    # Keep traversing through the legs
     this_leg = (this_leg + 1) % 3
-    pygame.display.flip()
+    # Update the display to show the next frame and our hard work
+    pg.display.flip()
+    # This guy just takes care of frame rates, he's very good at it too. For now the game runs at 15 fps
     clock.tick(15)
 
-pygame.quit()
-'''
+# This will terminate the game and close the window!
+pg.quit()
