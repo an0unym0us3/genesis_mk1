@@ -100,13 +100,13 @@ while game_run:
         mp_player_pos.x -= speed * true_mp_k
         walking = True
         sprite_direction = 'l'
-        leg_cycle[0], leg_cycle[2] = '_wlf', '_wrf'
+        # leg_cycle[0], leg_cycle[2] = '_wlf', '_wrf'
     if keys[pg.K_d] or keys[pg.K_RIGHT]:
         map_pos.x += -speed
         mp_player_pos.x += speed * true_mp_k
         walking = True
         sprite_direction = 'r'
-        leg_cycle[0], leg_cycle[2] = '_wrf', '_wlf'
+        # leg_cycle[0], leg_cycle[2] = '_wrf', '_wlf'
 
     # Keep traversing through the legs
     this_leg = (this_leg + 1) % 3
