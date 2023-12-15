@@ -4,13 +4,13 @@ pg.init()
 # Setting up basic information like how the pop-up window should be, what font, etc. Variables for convenience
 window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
-pg.display.set_caption('Pokemon Rip-off')
+pg.display.set_caption('Hometown')
 window_c = (window_w//2, window_h//2)
-my_font = pg.font.SysFont('Helvetica', 30)
+my_font = pg.font.SysFont('Comic Sans MS', 30)
 
 # Loading all core images to be transformed later for different use cases
-true_bg = pg.image.load('./images/background/bg.png')
-player = pg.image.load('./images/player/fplayer.png')
+true_bg = pg.image.load('bg.png')
+player = pg.image.load('fplayer.png')
 
 # Setting up world map with desired core image multiplier, variables for convenience
 bg_k = 6
@@ -42,7 +42,8 @@ mp_spn = (spn[0]*true_mp_k, spn[1]*true_mp_k)
 mp_player_pos = pg.Vector2(mp_pos.x + mp_w//2 - mplayer.get_width()//2 + mp_spn[0], mp_pos.y + mp_h//2 - mplayer.get_height()//2 + mp_spn[1])
 
 speed = 10
-leg_cycle = ['_wrf', '', '_wlf', '']
+leg_cycle = ['_wrf', '_wrf', '_wrf', '', '', '', '_wlf', '_wlf', '_wlf', '', '', '']
+cycle_len = len(leg_cycle) -1
 sprite_direction, this_leg = 'f', 0
 # It's some nice woody color... I think, for the border of the minimap... hence the margins
 mp_border = (164, 116, 73)
@@ -62,7 +63,7 @@ while game_run:
     display.blit(bg, (map_pos.x, map_pos.y))
 
     # Determine the state of the player; is he walking? then what direction is he walking?
-    player = pg.image.load(f'./images/player/{sprite_direction}player{leg_cycle[this_leg] if walking else ""}.png')
+    player = pg.image.load(f'{sprite_direction}player{leg_cycle[this_leg] if walking else ""}.png')
     # Draw the actual player ont he screen
     display.blit(player, (player_blit_pos.x, player_blit_pos.y))
     # Assume user has stopped inputting, as we will check it in the if statements again
@@ -100,16 +101,13 @@ while game_run:
         mp_player_pos.x -= speed * true_mp_k
         walking = True
         sprite_direction = 'l'
-        # leg_cycle[0], leg_cycle[2] = '_wlf', '_wrf'
     if keys[pg.K_d] or keys[pg.K_RIGHT]:
         map_pos.x += -speed
         mp_player_pos.x += speed * true_mp_k
         walking = True
         sprite_direction = 'r'
-        # leg_cycle[0], leg_cycle[2] = '_wrf', '_wlf'
-
     # Keep traversing through the legs
-    this_leg = (this_leg + 1) % 3
+    this_leg = (this_leg + 1) % cycle_len
     # Update the display to show the next frame and our hard work
     pg.display.flip()
     # This guy just takes care of frame rates, he's very good at it too. For now the game runs at 15 fps
