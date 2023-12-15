@@ -4,6 +4,7 @@ pg.init()
 # Setting up basic information like how the pop-up window should be, what font, etc. Variables for convenience
 window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
+pg.display.set_caption('Hometown')
 window_c = (window_w//2, window_h//2)
 my_font = pg.font.SysFont('Comic Sans MS', 30)
 
@@ -99,11 +100,13 @@ while game_run:
         mp_player_pos.x -= speed * true_mp_k
         walking = True
         sprite_direction = 'l'
+        leg_cycle[0], leg_cycle[2] = '_wlf', '_wrf'
     if keys[pg.K_d] or keys[pg.K_RIGHT]:
         map_pos.x += -speed
         mp_player_pos.x += speed * true_mp_k
         walking = True
         sprite_direction = 'r'
+        leg_cycle[0], leg_cycle[2] = '_wrf', '_wlf'
 
     # Keep traversing through the legs
     this_leg = (this_leg + 1) % 3
