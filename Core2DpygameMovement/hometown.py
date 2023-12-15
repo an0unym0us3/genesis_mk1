@@ -4,7 +4,7 @@ pg.init()
 # Setting up basic information like how the pop-up window should be, what font, etc. Variables for convenience
 window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
-pg.display.set_caption('Hometown')
+pg.display.set_caption('Pokemon Rip-Off')
 window_c = (window_w//2, window_h//2)
 my_font = pg.font.SysFont('Helvetica', 30)
 
