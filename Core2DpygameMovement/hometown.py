@@ -4,13 +4,13 @@ pg.init()
 # Setting up basic information like how the pop-up window should be, what font, etc. Variables for convenience
 window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
-pg.display.set_caption('Hometown')
+pg.display.set_caption('Pokemon Rip-off')
 window_c = (window_w//2, window_h//2)
-my_font = pg.font.SysFont('Comic Sans MS', 30)
+my_font = pg.font.SysFont('Helvetica', 30)
 
 # Loading all core images to be transformed later for different use cases
-true_bg = pg.image.load('bg.png')
-player = pg.image.load('fplayer.png')
+true_bg = pg.image.load('./images/background/bg.png')
+player = pg.image.load('./images/player/fplayer.png')
 
 # Setting up world map with desired core image multiplier, variables for convenience
 bg_k = 6
@@ -62,7 +62,7 @@ while game_run:
     display.blit(bg, (map_pos.x, map_pos.y))
 
     # Determine the state of the player; is he walking? then what direction is he walking?
-    player = pg.image.load(f'{sprite_direction}player{leg_cycle[this_leg] if walking else ""}.png')
+    player = pg.image.load(f'./images/player/{sprite_direction}player{leg_cycle[this_leg] if walking else ""}.png')
     # Draw the actual player ont he screen
     display.blit(player, (player_blit_pos.x, player_blit_pos.y))
     # Assume user has stopped inputting, as we will check it in the if statements again
