@@ -6,7 +6,7 @@ window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
 pg.display.set_caption('Pokemon Rip-off')
 window_c = (window_w//2, window_h//2)
-my_font = pg.font.SysFont('Helvetica', 30)
+my_font = pg.font.SysFont('Helvetica', 16)
 
 # Loading all core images to be transformed later for different use cases
 true_bg = pg.image.load('./images/background/bg.png')
@@ -25,6 +25,7 @@ map_pos = pg.Vector2(window_c[0] - bg_w//2 - spn[0], window_c[1] - bg_h//2 - spn
 
 # Variables for convenience, From the center of the window, go back halfway your size to center
 pg_w, pg_h = player.get_width(), player.get_height()
+PLAYER_BLIT_CENTER = pg.Vector2(window_c[0] - pg_w//2, window_c[1] - pg_h//2)
 player_blit_pos = pg.Vector2(window_c[0] - pg_w//2, window_c[1] - pg_h//2)
 
 mp_k = 0.4             # When translating core image to minimap
@@ -56,6 +57,23 @@ while game_run:
         if event.type == pg.QUIT:
             game_run = False
 
+    # Made the boundary conditions, but didn't fully work out the player blitting when boundary reached
+    if map_pos.x>0:
+        map_pos.x=0
+        player_blit_pos.x=10
+    elif map_pos.x<-bg_w+window_w:
+        map_pos.x=-bg_w+window_w
+        player_blit_pos.x=10
+    else:
+        player_blit_pos.x=PLAYER_BLIT_CENTER.x
+    if map_pos.y>0:
+        map_pos.y=0
+        player_blit_pos.y=10
+    elif map_pos.y<-bg_h+window_h:
+        map_pos.y=-bg_h+window_h
+        player_blit_pos.y=10
+    else:
+        player_blit_pos.y=PLAYER_BLIT_CENTER.y 
     # Fill the screen with some color to clear all previous images
     display.fill((0, 0, 0))
     # Drawn the world
@@ -72,15 +90,25 @@ while game_run:
     pg.draw.rect(display, mp_border, [5, 5, mp_w+10, mp_h+10])
     # Draw the minimap on top of that solid rectangle
     display.blit(mp, (mp_pos.x, mp_pos.y))
-    # Draw the player on top of the minimap
+    
+    # Draw the player on top of the minimap. Needs a bit more readjusting, but now the minimap player works based on calculation and doesn't need it's own speed
+    mp_player_pos.x=-(map_pos.x-window_w//2)//(bg_k/mp_k)+mplayer.get_width()//2
+    mp_player_pos.y=-(map_pos.y-window_h//2)//(bg_k/mp_k)+mplayer.get_height()//2
     display.blit(mplayer, (mp_player_pos.x, mp_player_pos.y))
-
+    
     # Debugging coordinate awesomeness
-    text_surface = my_font.render(f"{pg.mouse.get_pos()} {map_pos}", False, (0, 255, 0))
-    display.blit(text_surface, (0, 0))
+    text_surface = my_font.render(f"Mouse_Pos: {pg.mouse.get_pos()} Player_Pos:{map_pos} Blit Pos:{player_blit_pos} Speed:{speed} Bg:{bg_w,bg_h} Map:{mp_player_pos,(map_pos.y-window_h)//(bg_k/mp_k)}", False, (200, 255, 200), (70,100,80))
+    display.blit(text_surface, (0, window_h-24))
 
     # Here's where the key detection and movement are done
     keys = pg.key.get_pressed()
+    
+    # For debugging 
+    if keys[pg.K_3]:
+        speed+=2
+    elif keys[pg.K_1]:
+        speed-=2
+    
     if keys[pg.K_w] or keys[pg.K_UP]:
         # The whole world revolves around the player, so the movement has to be mirrored
         map_pos.y -= -speed
