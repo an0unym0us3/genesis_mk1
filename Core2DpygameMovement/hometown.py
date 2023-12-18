@@ -4,7 +4,7 @@ pg.init()
 # Setting up basic information like how the pop-up window should be, what font, etc. Variables for convenience
 window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
-pg.display.set_caption('Pokemon Rip-Off')
+pg.display.set_caption('Falschung')
 window_c = (window_w//2, window_h//2)
 my_font = pg.font.SysFont('Helvetica', 30)
 
@@ -24,9 +24,9 @@ spn = (55, 630)
 map_pos = pg.Vector2(window_c[0] - bg_w//2 - spn[0], window_c[1] - bg_h//2 - spn[1])
 
 # Variables for convenience, From the center of the window, go back halfway your size to center
-pg_w, pg_h = player.get_width(), player.get_height()
-PLAYER_BLIT_CENTER = pg.Vector2(window_c[0] - pg_w//2, window_c[1] - pg_h//2)
-player_blit_pos = pg.Vector2(window_c[0] - pg_w//2, window_c[1] - pg_h//2)
+player_w, player_h = player.get_width(), player.get_height()
+PLAYER_BLIT_CENTER = pg.Vector2(window_c[0] - player_w//2, window_c[1] - player_h//2)
+player_blit_pos = pg.Vector2(PLAYER_BLIT_CENTER.x, PLAYER_BLIT_CENTER.y)
 
 mp_k = 0.4             # When translating core image to minimap
 true_mp_k = mp_k/bg_k  # When translating world map to minimap
@@ -36,7 +36,8 @@ mp_w, mp_h = mp.get_width(), mp.get_height()
 # Giving some margin for the minimap, only for aesthetics
 mp_pos = pg.Vector2(10, 10)
 # Transform player size using world map multiplier, as the image is not upscaled and is used as is in the world map
-mplayer = pg.transform.scale(player, (pg_w*true_mp_k, pg_h*true_mp_k))
+mplayer = pg.transform.scale(player, (player_w*true_mp_k, player_h*true_mp_k))
+mplayer_w, mplayer_h = mplayer.get_width(), mplayer.get_height()
 # similarly, spawn is with respect to world map, therefore world map multiplier is used
 mp_spn = (spn[0]*true_mp_k, spn[1]*true_mp_k)
 # Account for margins, go halfway across the map, then center the minimap player icon, and finally go to spawn point
@@ -58,23 +59,63 @@ while game_run:
         if event.type == pg.QUIT:
             game_run = False
 
+    # Here's where the key detection and movement are done
+    keys = pg.key.get_pressed()
+    
+    # For debugging 
+    if keys[pg.K_3]:
+        speed+=2
+    elif keys[pg.K_1]:
+        speed-=2
+
+    # this_pos, this_way = map_pos, -speed
+
     # Made the boundary conditions, but didn't fully work out the player blitting when boundary reached
-    if map_pos.x>0:
-        map_pos.x=0
-        player_blit_pos.x=10
-    elif map_pos.x<-bg_w+window_w:
-        map_pos.x=-bg_w+window_w
-        player_blit_pos.x=10
+    if map_pos.x >= 0:
+        map_pos.x = 0
+        this_pos, this_way = player_blit_pos, speed
+    elif map_pos.x <= -bg_w + window_w:
+        map_pos.x = -bg_w + window_w
+        this_pos, this_way = player_blit_pos, speed
     else:
-        player_blit_pos.x=PLAYER_BLIT_CENTER.x
-    if map_pos.y>0:
-        map_pos.y=0
-        player_blit_pos.y=10
-    elif map_pos.y<-bg_h+window_h:
-        map_pos.y=-bg_h+window_h
-        player_blit_pos.y=10
+        this_pos, this_way = map_pos, -speed
+        
+    if map_pos.y >= 0:
+        map_pos.y = 0
+        this_pos, this_way = player_blit_pos, speed
+    elif map_pos.y <= -bg_h + window_h:
+        map_pos.y = -bg_h + window_h
+        this_pos, this_way = player_blit_pos, speed
     else:
-        player_blit_pos.y=PLAYER_BLIT_CENTER.y 
+        this_pos, this_way = map_pos, -speed
+    
+    if keys[pg.K_w] or keys[pg.K_UP]:
+        # The whole world revolves around the player, so the movement has to be mirrored
+        this_pos.y -= this_way
+        # The minimap stays static, so the player has to move... with the world map multiplier
+        mp_player_pos.y -= speed * true_mp_k
+        # Looks like the user pressed a key... again... *sigh*... Time to get walking
+        walking = True
+        # As you know which key was pressed, you can figure out where the user is going
+        sprite_direction = 'b'
+    if keys[pg.K_s] or keys[pg.K_DOWN]:
+        this_pos.y += this_way
+        mp_player_pos.y += speed * true_mp_k
+        walking = True
+        sprite_direction = 'f'
+    if keys[pg.K_a] or keys[pg.K_LEFT]:
+        this_pos.x -= this_way
+        mp_player_pos.x -= speed * true_mp_k
+        walking = True
+        sprite_direction = 'l'
+    if keys[pg.K_d] or keys[pg.K_RIGHT]:
+        this_pos.x += this_way
+        mp_player_pos.x += speed * true_mp_k
+        walking = True
+        sprite_direction = 'r'
+    # Keep traversing through the legs
+    this_leg = (this_leg + 1) % cycle_len
+    
     # Fill the screen with some color to clear all previous images
     display.fill((0, 0, 0))
     # Drawn the world
@@ -93,49 +134,14 @@ while game_run:
     display.blit(mp, (mp_pos.x, mp_pos.y))
     
     # Draw the player on top of the minimap. Needs a bit more readjusting, but now the minimap player works based on calculation and doesn't need it's own speed
-    mp_player_pos.x=-(map_pos.x-window_w//2)//(bg_k/mp_k)+mplayer.get_width()//2
-    mp_player_pos.y=-(map_pos.y-window_h//2)//(bg_k/mp_k)+mplayer.get_height()//2
+    mp_player_pos.x=-(map_pos.x-window_w//2)//(true_mp_k)+mplayer_w//2
+    mp_player_pos.y=-(map_pos.y-window_h//2)//(true_mp_k)+mplayer_h//2
     display.blit(mplayer, (mp_player_pos.x, mp_player_pos.y))
     
     # Debugging coordinate awesomeness
     text_surface = my_font.render(f"Mouse_Pos: {pg.mouse.get_pos()} Player_Pos:{map_pos} Blit Pos:{player_blit_pos} Speed:{speed} Bg:{bg_w,bg_h} Map:{mp_player_pos,(map_pos.y-window_h)//(bg_k/mp_k)}", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
 
-    # Here's where the key detection and movement are done
-    keys = pg.key.get_pressed()
-    
-    # For debugging 
-    if keys[pg.K_3]:
-        speed+=2
-    elif keys[pg.K_1]:
-        speed-=2
-    
-    if keys[pg.K_w] or keys[pg.K_UP]:
-        # The whole world revolves around the player, so the movement has to be mirrored
-        map_pos.y -= -speed
-        # The minimap stays static, so the player has to move... with the world map multiplier
-        mp_player_pos.y -= speed * true_mp_k
-        # Looks like the user pressed a key... again... *sigh*... Time to get walking
-        walking = True
-        # As you know which key was pressed, you can figure out where the user is going
-        sprite_direction = 'b'
-    if keys[pg.K_s] or keys[pg.K_DOWN]:
-        map_pos.y += -speed
-        mp_player_pos.y += speed * true_mp_k
-        walking = True
-        sprite_direction = 'f'
-    if keys[pg.K_a] or keys[pg.K_LEFT]:
-        map_pos.x -= -speed
-        mp_player_pos.x -= speed * true_mp_k
-        walking = True
-        sprite_direction = 'l'
-    if keys[pg.K_d] or keys[pg.K_RIGHT]:
-        map_pos.x += -speed
-        mp_player_pos.x += speed * true_mp_k
-        walking = True
-        sprite_direction = 'r'
-    # Keep traversing through the legs
-    this_leg = (this_leg + 1) % cycle_len
     # Update the display to show the next frame and our hard work
     pg.display.flip()
     # This guy just takes care of frame rates, he's very good at it too. For now the game runs at 15 fps
@@ -143,3 +149,61 @@ while game_run:
 
 # This will terminate the game and close the window!
 pg.quit()
+
+''' The code below technically works, the first time you hit a border, if the player crosses the center it will switch to the player. The next time you hit it, the player will never be allowed to move, only the map can
+
+    if map_pos.x >= 0:
+        map_pos.x = 0
+        if player_blit_pos.x <= PLAYER_BLIT_CENTER.x:
+            this_pos_x, this_way_x = player_blit_pos, speed
+        else:
+            this_pos_x, this_way_x = map_pos, -speed
+    elif map_pos.x <= -bg_w + window_w:
+        map_pos.x = -bg_w + window_w
+        if player_blit_pos.x >= PLAYER_BLIT_CENTER.x:
+            this_pos_x, this_way_x = player_blit_pos, speed
+        else:
+            this_pos_x, this_way_x = map_pos, -speed
+    else:
+        this_pos_x, this_way_x = map_pos, -speed
+        
+    if map_pos.y >= 0:
+        map_pos.y = 0
+        if player_blit_pos.y <= PLAYER_BLIT_CENTER.y:
+            this_pos_y, this_way_y = player_blit_pos, speed
+        else:
+            this_pos_y, this_way_y = map_pos, -speed
+    elif map_pos.y <= -bg_h + window_h:
+        map_pos.y = -bg_h + window_h
+        if player_blit_pos.y >= PLAYER_BLIT_CENTER.y:
+            this_pos_y, this_way_y = player_blit_pos, speed
+        else:
+            this_pos_y, this_way_y = map_pos, -speed
+    else:
+        this_pos_y, this_way_y = map_pos, -speed
+    
+    if keys[pg.K_w] or keys[pg.K_UP]:
+        # The whole world revolves around the player, so the movement has to be mirrored
+        this_pos_y.y -= this_way_y
+        # The minimap stays static, so the player has to move... with the world map multiplier
+        mp_player_pos.y -= speed * true_mp_k
+        # Looks like the user pressed a key... again... *sigh*... Time to get walking
+        walking = True
+        # As you know which key was pressed, you can figure out where the user is going
+        sprite_direction = 'b'
+    if keys[pg.K_s] or keys[pg.K_DOWN]:
+        this_pos_y.y += this_way_y
+        mp_player_pos.y += speed * true_mp_k
+        walking = True
+        sprite_direction = 'f'
+    if keys[pg.K_a] or keys[pg.K_LEFT]:
+        this_pos_x.x -= this_way_x
+        mp_player_pos.x -= speed * true_mp_k
+        walking = True
+        sprite_direction = 'l'
+    if keys[pg.K_d] or keys[pg.K_RIGHT]:
+        this_pos_x.x += this_way_x
+        mp_player_pos.x += speed * true_mp_k
+        walking = True
+        sprite_direction = 'r'
+'''
