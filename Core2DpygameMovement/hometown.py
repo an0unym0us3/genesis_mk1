@@ -37,6 +37,7 @@ mp_w, mp_h = mp.get_width(), mp.get_height()
 mp_pos = pg.Vector2(10, 10)
 # Transform player size using world map multiplier, as the image is not upscaled and is used as is in the world map
 mplayer = pg.transform.scale(player, (player_w*true_mp_k, player_h*true_mp_k))
+mplayer_w, mplayer_h = mplayer.get_width(), mplayer.get_height()
 # similarly, spawn is with respect to world map, therefore world map multiplier is used
 mp_spn = (spn[0]*true_mp_k, spn[1]*true_mp_k)
 # Account for margins, go halfway across the map, then center the minimap player icon, and finally go to spawn point
@@ -133,8 +134,8 @@ while game_run:
     display.blit(mp, (mp_pos.x, mp_pos.y))
     
     # Draw the player on top of the minimap. Needs a bit more readjusting, but now the minimap player works based on calculation and doesn't need it's own speed
-    mp_player_pos.x=-(map_pos.x-window_w//2)//(bg_k/mp_k)+mplayer.get_width()//2
-    mp_player_pos.y=-(map_pos.y-window_h//2)//(bg_k/mp_k)+mplayer.get_height()//2
+    mp_player_pos.x=-(map_pos.x-window_w//2)//(true_mp_k)+mplayer_w//2
+    mp_player_pos.y=-(map_pos.y-window_h//2)//(true_mp_k)+mplayer_h//2
     display.blit(mplayer, (mp_player_pos.x, mp_player_pos.y))
     
     # Debugging coordinate awesomeness
