@@ -24,9 +24,9 @@ spn = (55, 630)
 map_pos = pg.Vector2(window_c[0] - bg_w//2 - spn[0], window_c[1] - bg_h//2 - spn[1])
 
 # Variables for convenience, From the center of the window, go back halfway your size to center
-pg_w, pg_h = player.get_width(), player.get_height()
-PLAYER_BLIT_CENTER = pg.Vector2(window_c[0] - pg_w//2, window_c[1] - pg_h//2)
-player_blit_pos = pg.Vector2(window_c[0] - pg_w//2, window_c[1] - pg_h//2)
+player_w, player_h = player.get_width(), player.get_height()
+PLAYER_BLIT_CENTER = pg.Vector2(window_c[0] - player_w//2, window_c[1] - player_h//2)
+player_blit_pos = pg.Vector2(PLAYER_BLIT_CENTER.x, PLAYER_BLIT_CENTER.y)
 
 mp_k = 0.4             # When translating core image to minimap
 true_mp_k = mp_k/bg_k  # When translating world map to minimap
@@ -36,7 +36,7 @@ mp_w, mp_h = mp.get_width(), mp.get_height()
 # Giving some margin for the minimap, only for aesthetics
 mp_pos = pg.Vector2(10, 10)
 # Transform player size using world map multiplier, as the image is not upscaled and is used as is in the world map
-mplayer = pg.transform.scale(player, (pg_w*true_mp_k, pg_h*true_mp_k))
+mplayer = pg.transform.scale(player, (player_w*true_mp_k, player_h*true_mp_k))
 # similarly, spawn is with respect to world map, therefore world map multiplier is used
 mp_spn = (spn[0]*true_mp_k, spn[1]*true_mp_k)
 # Account for margins, go halfway across the map, then center the minimap player icon, and finally go to spawn point
