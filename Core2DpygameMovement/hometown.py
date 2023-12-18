@@ -149,3 +149,61 @@ while game_run:
 
 # This will terminate the game and close the window!
 pg.quit()
+
+''' The code below technically works, the first time you hit a border, if the player crosses the center it will switch to the player. The next time you hit it, the player will never be allowed to move, only the map can
+
+    if map_pos.x >= 0:
+        map_pos.x = 0
+        if player_blit_pos.x <= PLAYER_BLIT_CENTER.x:
+            this_pos_x, this_way_x = player_blit_pos, speed
+        else:
+            this_pos_x, this_way_x = map_pos, -speed
+    elif map_pos.x <= -bg_w + window_w:
+        map_pos.x = -bg_w + window_w
+        if player_blit_pos.x >= PLAYER_BLIT_CENTER.x:
+            this_pos_x, this_way_x = player_blit_pos, speed
+        else:
+            this_pos_x, this_way_x = map_pos, -speed
+    else:
+        this_pos_x, this_way_x = map_pos, -speed
+        
+    if map_pos.y >= 0:
+        map_pos.y = 0
+        if player_blit_pos.y <= PLAYER_BLIT_CENTER.y:
+            this_pos_y, this_way_y = player_blit_pos, speed
+        else:
+            this_pos_y, this_way_y = map_pos, -speed
+    elif map_pos.y <= -bg_h + window_h:
+        map_pos.y = -bg_h + window_h
+        if player_blit_pos.y >= PLAYER_BLIT_CENTER.y:
+            this_pos_y, this_way_y = player_blit_pos, speed
+        else:
+            this_pos_y, this_way_y = map_pos, -speed
+    else:
+        this_pos_y, this_way_y = map_pos, -speed
+    
+    if keys[pg.K_w] or keys[pg.K_UP]:
+        # The whole world revolves around the player, so the movement has to be mirrored
+        this_pos_y.y -= this_way_y
+        # The minimap stays static, so the player has to move... with the world map multiplier
+        mp_player_pos.y -= speed * true_mp_k
+        # Looks like the user pressed a key... again... *sigh*... Time to get walking
+        walking = True
+        # As you know which key was pressed, you can figure out where the user is going
+        sprite_direction = 'b'
+    if keys[pg.K_s] or keys[pg.K_DOWN]:
+        this_pos_y.y += this_way_y
+        mp_player_pos.y += speed * true_mp_k
+        walking = True
+        sprite_direction = 'f'
+    if keys[pg.K_a] or keys[pg.K_LEFT]:
+        this_pos_x.x -= this_way_x
+        mp_player_pos.x -= speed * true_mp_k
+        walking = True
+        sprite_direction = 'l'
+    if keys[pg.K_d] or keys[pg.K_RIGHT]:
+        this_pos_x.x += this_way_x
+        mp_player_pos.x += speed * true_mp_k
+        walking = True
+        sprite_direction = 'r'
+'''
