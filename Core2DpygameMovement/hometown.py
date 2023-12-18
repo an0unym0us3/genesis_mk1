@@ -6,7 +6,7 @@ window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
 pg.display.set_caption('Falschung')
 window_c = (window_w//2, window_h//2)
-my_font = pg.font.SysFont('Helvetica', 30)
+my_font = pg.font.SysFont('Helvetica', 20)
 
 # Loading all core images to be transformed later for different use cases
 true_bg = pg.image.load('./images/background/bg.png')
@@ -69,7 +69,7 @@ while game_run:
         speed-=2
 
     # this_pos, this_way = map_pos, -speed
-
+    
     # Made the boundary conditions, but didn't fully work out the player blitting when boundary reached
     if map_pos.x >= 0:
         map_pos.x = 0
@@ -134,8 +134,8 @@ while game_run:
     display.blit(mp, (mp_pos.x, mp_pos.y))
     
     # Draw the player on top of the minimap. Needs a bit more readjusting, but now the minimap player works based on calculation and doesn't need it's own speed
-    mp_player_pos.x=-(map_pos.x-window_w//2)//(true_mp_k)+mplayer_w//2
-    mp_player_pos.y=-(map_pos.y-window_h//2)//(true_mp_k)+mplayer_h//2
+    mp_player_pos.x=-(map_pos.x-window_w//2)*true_mp_k + mplayer_w//2
+    mp_player_pos.y=-(map_pos.y-window_h//2)*true_mp_k + mplayer_h//2
     display.blit(mplayer, (mp_player_pos.x, mp_player_pos.y))
     
     # Debugging coordinate awesomeness
