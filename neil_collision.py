@@ -28,13 +28,31 @@ while run:
   screen.fill(BG)
 
   #check collision and change colour
-  col = GREEN
-  if rect_1.colliderect(obstacle_rect):
-    col = RED
+
 
   #get mouse coordinates and use them to position the rectangle
   pos = pygame.mouse.get_pos()
+  #print(pos)
   rect_1.center = pos
+
+  col = GREEN
+  if rect_1.colliderect(obstacle_rect):
+    overlap_x = max(0, min(rect_1.right, obstacle_rect.right) - max(rect_1.left, obstacle_rect.left))
+    overlap_y = max(0, min(rect_1.bottom, obstacle_rect.bottom) - max(rect_1.top, obstacle_rect.top))
+
+    # Adjust the position based on the smaller overlap
+    if overlap_x < overlap_y:
+      if rect_1.centerx < obstacle_rect.centerx:
+        rect_1.right = obstacle_rect.left
+      else:
+        rect_1.left = obstacle_rect.right
+    else:
+      if rect_1.centery < obstacle_rect.centery:
+        rect_1.bottom = obstacle_rect.top
+      else:
+        rect_1.top = obstacle_rect.bottom
+
+
 
   #draw both rectangles
   pygame.draw.rect(screen, col, rect_1)
