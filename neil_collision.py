@@ -1,68 +1,61 @@
 import pygame
-import random
+import sys
 
+# Initialize Pygame
 pygame.init()
 
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 400
+# Set up display
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Collision Detector")
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Collision")
+# Set up colors
+white = (255, 255, 255)
+red = (255, 0, 0)
 
-#create main rectangle & obstacle rectangle
-rect_1 = pygame.Rect(0, 0, 25, 25)
-obstacle_rect = pygame.Rect(random.randint(0, 500), random.randint(0, 300), 25, 25)
+# Set up rectangles
+rect1 = pygame.Rect(100, 100, 50, 50)
+rect2 = pygame.Rect(200, 200, 50, 50)
 
-#define colours
-BG = (50, 50, 50)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
+# Set up clock
+clock = pygame.time.Clock()
 
-#hide mouse cursor
-pygame.mouse.set_visible(False)
+# Main game loop
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
 
-run = True
-while run:
-  #update background
-  screen.fill(BG)
+    # Save the previous position of rect1
+    prev_rect1_pos = rect1.topleft
 
-  #check collision and change colour
+    # Move rectangles
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        rect1.x -= 20
+    if keys[pygame.K_RIGHT]:
+        rect1.x += 20
+    if keys[pygame.K_UP]:
+        rect1.y -= 20
+    if keys[pygame.K_DOWN]:
+        rect1.y += 20
 
+    # Check for collisions
+    if rect1.colliderect(rect2):
+        # Handle collision by setting the position back to the previous position
+        rect1.topleft = prev_rect1_pos
 
-  #get mouse coordinates and use them to position the rectangle
-  pos = pygame.mouse.get_pos()
-  #print(pos)
-  rect_1.center = pos
+    # Clear the screen
+    screen.fill(white)
 
-  col = GREEN
-  if rect_1.colliderect(obstacle_rect):
-    overlap_x = max(0, min(rect_1.right, obstacle_rect.right) - max(rect_1.left, obstacle_rect.left))
-    overlap_y = max(0, min(rect_1.bottom, obstacle_rect.bottom) - max(rect_1.top, obstacle_rect.top))
+    # Draw rectangles
+    pygame.draw.rect(screen, red, rect1)
+    pygame.draw.rect(screen, red, rect2)
 
-    # Adjust the position based on the smaller overlap
-    if overlap_x < overlap_y:
-      if rect_1.centerx < obstacle_rect.centerx:
-        rect_1.right = obstacle_rect.left
-      else:
-        rect_1.left = obstacle_rect.right
-    else:
-      if rect_1.centery < obstacle_rect.centery:
-        rect_1.bottom = obstacle_rect.top
-      else:
-        rect_1.top = obstacle_rect.bottom
+    # Update the display
+    pygame.display.flip()
 
+    # Cap the frame rate
+    clock.tick(60)
 
-
-  #draw both rectangles
-  pygame.draw.rect(screen, col, rect_1)
-  pygame.draw.rect(screen, BLUE, obstacle_rect)
-
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      run = False
-
-  #update display
-  pygame.display.flip()
-
-pygame.quit()
