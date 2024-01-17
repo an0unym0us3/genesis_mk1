@@ -24,14 +24,17 @@ hover_color = (0, 0, 0)
 start_size_increased = False
 
 # Set up the font with Courier for the Start button
-font_size = 36
-font = pygame.font.Font(pygame.font.match_font('courier'), font_size)
+font_size=36
+startfont = pygame.font.Font(pygame.font.match_font('courier'), font_size)
+exitfont = pygame.font.Font(pygame.font.match_font('courier'), font_size)
+startfont_size=font_size
+exitfont_size=font_size
 start_text = "Start"
 
 # Set up the rectangle for the Exit button
 exit_button = pygame.Rect(0, 0, 280, 100)
 exit_button.topleft = (original_x, original_y + 200)  # Placed way below the Start button
-exit_color = (0, 0, 0)  # black color for Exit button
+exit_color = (0, 255, 0)  # black color for Exit button
 exit_size_increased = False
 
 # Set up the font with Courier for the Exit button
@@ -67,8 +70,8 @@ while running:
             # Increase the size and adjust the position for the expansion
             start_button.inflate_ip(25, 50)
             start_button.topleft = (original_x - 12, original_y - 25)
-            font_size += 10  # Increase font size by 10
-            font = pygame.font.Font(pygame.font.match_font('courier'), font_size)
+            startfont_size += 10  # Increase font size by 10
+            startfont = pygame.font.Font(pygame.font.match_font('courier'), startfont_size)
             start_size_increased = True
     else:
         start_color = original_color
@@ -76,8 +79,8 @@ while running:
             # Reset the size and position to the original state
             start_button = pygame.Rect(0, 0, 280, 100)
             start_button.topleft = (original_x, original_y)
-            font_size = 36  # Reset to original font size
-            font = pygame.font.Font(pygame.font.match_font('courier'), font_size)
+            startfont_size = 36  # Reset to original font size
+            startfont = pygame.font.Font(pygame.font.match_font('courier'), startfont_size)
             start_size_increased = False
 
     # Check for Exit button interaction
@@ -86,18 +89,18 @@ while running:
         if not exit_size_increased:
             # Increase the size and adjust the position for the expansion
             exit_button.inflate_ip(25, 50)
-            font_size+=10
-            font = pygame.font.Font(pygame.font.match_font('courier'), font_size)
-            exit_button.topleft = (original_x - 12, original_y + 150 - 25)
+            exitfont_size+=10
+            exitfont = pygame.font.Font(pygame.font.match_font('courier'), exitfont_size)
+            exit_button.topleft = (original_x - 12, original_y + 175)
             exit_size_increased = True
     else:
         exit_color = (0, 255, 0)  # Reset color to green for the Exit button
         if exit_size_increased:
             # Reset the size and position to the original state
             exit_button = pygame.Rect(0, 0, 280, 100)
-            exit_button.topleft = (original_x, original_y + 150)
-            font_size=36
-            font = pygame.font.Font(pygame.font.match_font('courier'), font_size)
+            exit_button.topleft = (original_x, original_y + 200)
+            exitfont_size=36
+            exitfont = pygame.font.Font(pygame.font.match_font('courier'), exitfont_size)
             exit_size_increased = False
 
     screen.fill("black")
@@ -110,13 +113,13 @@ while running:
 
     # Draw the Start button
     pygame.draw.rect(screen, start_color, start_button)
-    start_text_surface = font.render(start_text, True, (255, 255, 255))
+    start_text_surface = startfont.render(start_text, True, (255, 255, 255))
     start_text_rect = start_text_surface.get_rect(center=(start_button.x + start_button.width // 2, start_button.y + start_button.height // 2))
     screen.blit(start_text_surface, start_text_rect)
 
     # Draw the Exit button
     pygame.draw.rect(screen, (0,0,0), exit_button)
-    exit_text_surface = font.render(exit_text, True, (255, 255, 255))
+    exit_text_surface = exitfont.render(exit_text, True, (255, 255, 255))
     exit_text_rect = exit_text_surface.get_rect(center=(exit_button.x + exit_button.width // 2, exit_button.y + exit_button.height // 2))
     screen.blit(exit_text_surface, exit_text_rect)
 
