@@ -10,7 +10,7 @@ def draw_rect_alpha(surface, color, rect):
 pygame.init()
 
 # Set up display
-width, height = 800, 600
+width, height = 1000, 750
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Collision Detector")
 
@@ -23,7 +23,7 @@ trans_color = [0, 0, 255, 100]
 # Set up rectangles
 rect1 = pygame.Rect(100, 100, 50, 50)
 rect2 = pygame.Rect(200, 200, 50, 50)
-
+rect3 = pygame.Rect(200, 200, 50, 50)
 font = pygame.font.Font(None, 36)
 
 # Set up toggle button
@@ -72,6 +72,7 @@ while True:
 
     # Draw rectangles using the draw_rect_alpha function
     draw_rect_alpha(screen, red, rect1)
+    draw_rect_alpha(screen, btn_color, rect3)
     draw_rect_alpha(screen, trans_color, rect2)
     pygame.draw.rect(screen, btn_color, toggle_button)
     screen.blit(toggle_text, (30, 30))
