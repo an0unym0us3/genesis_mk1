@@ -1,6 +1,11 @@
 import pygame
 import sys
 
+def draw_rect_alpha(surface, color, rect):
+    shape_surf = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+    pygame.draw.rect(shape_surf, color, shape_surf.get_rect())
+    surface.blit(shape_surf, rect)
+
 # Initialize Pygame
 pygame.init()
 
@@ -12,6 +17,7 @@ pygame.display.set_caption("Collision Detector")
 # Set up colors
 white = (255, 255, 255)
 red = (255, 0, 0)
+trans_color = (0, 255, 0,127)
 
 # Set up rectangles
 rect1 = pygame.Rect(100, 100, 50, 50)
@@ -49,13 +55,12 @@ while True:
     # Clear the screen
     screen.fill(white)
 
-    # Draw rectangles
-    pygame.draw.rect(screen, red, rect1)
-    pygame.draw.rect(screen, red, rect2)
+    # Draw rectangles using the draw_rect_alpha function
+    draw_rect_alpha(screen, red, rect1)
+    draw_rect_alpha(screen, 0, rect2)
 
     # Update the display
     pygame.display.flip()
 
     # Cap the frame rate
     clock.tick(60)
-
