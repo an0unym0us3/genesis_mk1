@@ -10,9 +10,13 @@ def draw_rect_alpha(surface, color, rect):
 pygame.init()
 
 # Set up display
-width, height = 1000, 750
+width, height = 1200, 1000
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Collision Detector")
+IMAGE = pygame.image.load('/Users/admin/PycharmProjects/backtobasics/genesis_mk1/images/pokemon house.png').convert()
+# Image.small makes the image smaller. rect2 and rect3 MUST be equal
+IMAGE_SMALL = pygame.transform.scale(IMAGE, (100, 100))
+
 
 # Set up colors
 white = (255, 255, 255)
@@ -21,9 +25,10 @@ btn_color = (0, 255, 0)
 trans_color = [0, 0, 255, 100]
 
 # Set up rectangles
+#IMAGE.get_rect()
 rect1 = pygame.Rect(100, 100, 50, 50)
-rect2 = pygame.Rect(200, 200, 50, 50)
-rect3 = pygame.Rect(200, 200, 50, 50)
+rect2 = pygame.Rect(200, 200, 100, 100)
+rect3 = pygame.Rect(200, 200, 100, 100)
 font = pygame.font.Font(None, 36)
 
 # Set up toggle button
@@ -76,6 +81,7 @@ while True:
     draw_rect_alpha(screen, trans_color, rect2)
     pygame.draw.rect(screen, btn_color, toggle_button)
     screen.blit(toggle_text, (30, 30))
+    screen.blit(IMAGE_SMALL, rect3)
 
     # Update the display
     pygame.display.flip()
