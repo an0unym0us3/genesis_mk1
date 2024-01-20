@@ -13,7 +13,7 @@ pygame.init()
 width, height = 1200, 1000
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Collision Detector")
-IMAGE = pygame.image.load('/Users/admin/PycharmProjects/backtobasics/genesis_mk1/images/pokemon house.png').convert()
+IMAGE = pygame.image.load('/genesis_mk1/Media/images/pokemon house.png').convert()
 # Image.small makes the image smaller. rect2 and rect3 MUST be equal
 IMAGE_SMALL = pygame.transform.scale(IMAGE, (100, 100))
 

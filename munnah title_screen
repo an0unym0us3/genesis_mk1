@@ -4,7 +4,7 @@ import sys
 pygame.init()
 
 #Music for title screen
-pygame.mixer.music.load('TitleMusic.mp3')
+pygame.mixer.music.load('/backtobasics/genesis_mk1/Media/music/TitleMusic.mp3')
 pygame.mixer.music.play(-1)
 
 # Set the title of the display window
