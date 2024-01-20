@@ -57,7 +57,7 @@ while True:
 
     # Draw rectangles using the draw_rect_alpha function
     draw_rect_alpha(screen, red, rect1)
-    draw_rect_alpha(screen, 0, rect2)
+    draw_rect_alpha(screen,trans_color, rect2)
 
     # Update the display
     pygame.display.flip()
