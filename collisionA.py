@@ -14,10 +14,9 @@ mp_k = 0.4
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 player_img = pg.image.load('./Media/images/player/fplayer.png')
 
-spn = (155, 630)
 
-
-global_pos = pg.Vector2(2450,2040)
+spn = (2450, 2040)
+global_pos = pg.Vector2(spn[0],spn[1])
 
 class Map(pg.sprite.Sprite):
     def __init__(self, image):
@@ -44,6 +43,7 @@ class Map(pg.sprite.Sprite):
             self.blit_pos.y = self.h-window_c[1]
         else:
             self.blit_pos.y = global_pos.y
+        
         self.blit_pos.x, self.blit_pos.y = window_c[0]-self.blit_pos.x, window_c[1]-self.blit_pos.y
     
     def blit(self):
@@ -63,8 +63,12 @@ class Player(pg.sprite.Sprite):
         self.cycle_len = len(self.leg_cycle)
         self.sprite_direction, self.this_leg = 'f', 0
         self.walking = False
+        self.prev_pos = pg.Vector2(global_pos)
+        self.collide = False
     
     def movement_update(self, keys):
+        self.prev_pos = pg.Vector2(global_pos)
+        self.rect.x, self.rect.y = self.blit_pos.x, self.blit_pos.y
         if keys[pg.K_3]:
             self.speed+=2
         elif keys[pg.K_1]:
@@ -86,6 +90,7 @@ class Player(pg.sprite.Sprite):
             global_pos.x += self.speed
             self.walking = True
             self.sprite_direction = 'r'
+        
         self.this_leg = (self.this_leg + 1) % self.cycle_len
         self.image = pg.image.load(f'./Media/images/player/{self.sprite_direction}player{self.leg_cycle[self.this_leg] if self.walking else ""}.png')
         self.walking = False
@@ -105,10 +110,19 @@ class Player(pg.sprite.Sprite):
             self.blit_pos.y = self.PLAYER_BLIT_CENTER.y + (global_pos.y-(map.h-window_c[1]))
         else:
             self.blit_pos.y = self.PLAYER_BLIT_CENTER.y
+
+    def collide_update(self, object):
+        self.collide = False
+        
+        if self.rect.colliderect(object.rect):
+            self.collide = True
+            global_pos = self.prev_pos
+            
     
-    def update(self, keys, map):
+    def update(self, keys, map, object):
         self.movement_update(keys)
         self.boundary_update(map)
+        self.collide_update(object)
         
     def blit(self):
         display.blit(self.image, self.blit_pos)
@@ -136,13 +150,27 @@ class Minimap(pg.sprite.Sprite):
         display.blit(self.image, self.blit_pos)
         display.blit(self.player_image, self.player_blit_pos)
 
+class Object(pg.sprite.Sprite):
+    def __init__(self, top_left, bottom_right):
+        self.left = top_left[0]* bg_k
+        self.top = top_left[1] * bg_k
+        self.w = (bottom_right[0] - top_left[0])*bg_k
+        self.h = (bottom_right[1] - top_left[1])*bg_k
+        self.rect = pg.Rect(self.top, self.left, self.w, self.h)
+        self.color = (0,0,255)         
+    
+    def update(self):
+        self.rect.x, self.rect.y = window_c[0]+(self.left-global_pos[0]), window_c[1]+(self.top-global_pos[1])
+        pg.draw.rect(display, self.color, self.rect)
+                 
 player = Player(image=player_img)
 map = Map(image=true_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
 game_run = True
 clock = pg.time.Clock()
 
-    
+red_house = Object((472, 314), (533, 380))
+
 while game_run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -150,17 +178,19 @@ while game_run:
 
     keys = pg.key.get_pressed()
    
-    player.update(keys, map)
+    player.update(keys, map,red_house)
     map.update()
     minimap.update()
    
     
-    display.fill((0, 0, 0))
+    display.fill((255, 0, 0))
     map.blit()
     minimap.blit()
-    text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map: {map.w}", False, (200, 255, 200), (70,100,80))
+    red_house.update()
+    text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {player.rect} {red_house.rect}", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
+    
     pg.display.flip()
     clock.tick(15)
 
