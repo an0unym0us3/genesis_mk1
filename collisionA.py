@@ -13,7 +13,10 @@ bg_k = 6
 mp_k = 0.4
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 player_img = pg.image.load('./Media/images/player/fplayer.png')
-
+def draw_rect_alpha(surface, color, rect):
+    shape_surf = pg.Surface(pg.Rect(rect).size, pg.SRCALPHA)
+    pg.draw.rect(shape_surf, color, shape_surf.get_rect())
+    surface.blit(shape_surf, rect)
 
 spn = (2450, 2040)
 global_pos = pg.Vector2(spn[0],spn[1])
@@ -51,14 +54,17 @@ class Map(pg.sprite.Sprite):
 
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, image):
+    def __init__(self,top_left ,image ):
         pg.sprite.Sprite.__init__(self)
         self.image = image
         self.rect = self.image.get_rect()
+        self.top_left =top_left
+        self.left = top_left[0] * bg_k
+        self.top = top_left[1] * bg_k
         self.w, self.h = self.image.get_width(), self.image.get_height()
         self.PLAYER_BLIT_CENTER = pg.Vector2(window_c[0] - self.w//2, window_c[1] - self.h//2)
         self.blit_pos = pg.Vector2(self.PLAYER_BLIT_CENTER.x, self.PLAYER_BLIT_CENTER.y)
-        self.speed = 10
+        self.speed = 50
         self.leg_cycle = ['_wrf', '_wrf', '_wrf', '', '', '', '_wlf', '_wlf', '_wlf', '', '', '']
         self.cycle_len = len(self.leg_cycle)
         self.sprite_direction, self.this_leg = 'f', 0
@@ -126,7 +132,9 @@ class Player(pg.sprite.Sprite):
         
     def blit(self):
         display.blit(self.image, self.blit_pos)
-        
+
+    def givetopleft(self):
+        return self.top_left
 
 class Minimap(pg.sprite.Sprite):
     def __init__(self, image, player_image):
@@ -157,13 +165,13 @@ class Object(pg.sprite.Sprite):
         self.w = (bottom_right[0] - top_left[0])*bg_k
         self.h = (bottom_right[1] - top_left[1])*bg_k
         self.rect = pg.Rect(self.top, self.left, self.w, self.h)
-        self.color = (0,0,255)         
+        self.color = (0,255,0,100)
     
     def update(self):
         self.rect.x, self.rect.y = window_c[0]+(self.left-global_pos[0]), window_c[1]+(self.top-global_pos[1])
-        pg.draw.rect(display, self.color, self.rect)
-                 
-player = Player(image=player_img)
+        draw_rect_alpha(display, self.color, self.rect)
+
+player = Player((0, 0),image=player_img)
 map = Map(image=true_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
 game_run = True
@@ -181,6 +189,7 @@ while game_run:
     player.update(keys, map,red_house)
     map.update()
     minimap.update()
+    prev_rect1_pos = player.givetopleft()
    
     
     display.fill((255, 0, 0))
