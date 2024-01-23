@@ -71,7 +71,7 @@ while True:
     if rect1.colliderect(rect2):
         # Handle collision by setting the position back to the previous position
         rect1.topleft = prev_rect1_pos
-        print(rect1.topleft)
+
     # Clear the screen
     screen.fill(white)
 

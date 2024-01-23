@@ -117,18 +117,15 @@ class Player(pg.sprite.Sprite):
         else:
             self.blit_pos.y = self.PLAYER_BLIT_CENTER.y
 
-    def collide_update(self, object):
-        self.collide = False
-        
-        if self.rect.colliderect(object.rect):
-            self.collide = True
-            global_pos = self.prev_pos
-            
-    
-    def update(self, keys, map, object):
+    def collide_update(self, other_rect,prev_rect_pos):
+
+        # Check for collisions
+        self.rect.topleft = prev_rect_pos
+
+    def update(self, keys, map, object,prev_rect_pos):
         self.movement_update(keys)
         self.boundary_update(map)
-        self.collide_update(object)
+        self.collide_update(object,prev_rect_pos)
         
     def blit(self):
         display.blit(self.image, self.blit_pos)
@@ -171,6 +168,8 @@ class Object(pg.sprite.Sprite):
         self.rect.x, self.rect.y = window_c[0]+(self.left-global_pos[0]), window_c[1]+(self.top-global_pos[1])
         draw_rect_alpha(display, self.color, self.rect)
 
+
+
 player = Player((0, 0),image=player_img)
 map = Map(image=true_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
@@ -185,13 +184,12 @@ while game_run:
             game_run = False
 
     keys = pg.key.get_pressed()
-   
-    player.update(keys, map,red_house)
+    prev_rect1_pos = player.givetopleft()
+    if player.rect.colliderect(red_house):
+        player.collide_update(red_house,prev_rect1_pos)
+    player.update(keys, map,red_house,prev_rect1_pos)
     map.update()
     minimap.update()
-    prev_rect1_pos = player.givetopleft()
-   
-    
     display.fill((255, 0, 0))
     map.blit()
     minimap.blit()
