@@ -13,6 +13,7 @@ bg_k = 6
 mp_k = 0.4
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 player_img = pg.image.load('./Media/images/player/fplayer.png')
+coin_img = pg.image.load('./Media/images/coin.jpg')
 
 
 spn = (2450, 2040)
@@ -160,9 +161,20 @@ class Object(pg.sprite.Sprite):
         self.color = (0,0,255)         
     
     def update(self):
-        self.rect.x, self.rect.y = window_c[0]+(self.left-global_pos[0]), window_c[1]+(self.top-global_pos[1])
+        global player
+        self.rect.x, self.rect.y = player.blit_pos.x+(self.left-global_pos[0]), player.blit_pos.y+(self.top-global_pos[1])
         pg.draw.rect(display, self.color, self.rect)
-                 
+#"""
+class Coin(Object):
+    def __init__(self, top_left):
+        super().__init__(top_left, (top_left[0]+50, top_left[1]+50))
+        self.image = pg.transform.scale(coin_img, (50, 50))
+        self.rect = self.image.get_rect()
+    def blit(self):
+        self.blit_pos = pg.Vector2(self.rect.x,self.rect.y)
+        display.blit(self.image, self.blit_pos)
+#"""
+                
 player = Player(image=player_img)
 map = Map(image=true_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
@@ -170,6 +182,8 @@ game_run = True
 clock = pg.time.Clock()
 
 red_house = Object((472, 314), (533, 380))
+acoin = Coin((472, 314))
+
 
 while game_run:
     for event in pg.event.get():
@@ -186,7 +200,9 @@ while game_run:
     display.fill((255, 0, 0))
     map.blit()
     minimap.blit()
-    red_house.update()
+    #red_house.update()
+    acoin.update()
+    acoin.blit()
     text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {player.rect} {red_house.rect}", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
