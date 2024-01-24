@@ -56,9 +56,7 @@ while True:
     # Save the previous position of rect1
     prev_rect1_pos = rect1.topleft
     # Check for collisions
-    if rect1.colliderect(rect2):
-        # Handle collision by setting the position back to the previous position
-        rect1.topleft = prev_rect1_pos
+
 
     # Move rectangles
     keys = pygame.key.get_pressed()
@@ -71,7 +69,9 @@ while True:
     if keys[pygame.K_DOWN]:
         rect1.y += 20
 
-
+    if rect1.colliderect(rect2):
+        # Handle collision by setting the position back to the previous position
+        rect1.topleft = prev_rect1_pos
 
     # Clear the screen
     screen.fill(white)

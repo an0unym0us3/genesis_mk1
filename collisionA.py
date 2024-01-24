@@ -54,11 +54,12 @@ class Map(pg.sprite.Sprite):
 
 
 class Player(pg.sprite.Sprite):
+
     def __init__(self,top_left ,image ):
         pg.sprite.Sprite.__init__(self)
         self.image = image
         self.rect = self.image.get_rect()
-        self.top_left =top_left
+        self.rect.topleft =top_left
         self.left = top_left[0] * bg_k
         self.top = top_left[1] * bg_k
         self.w, self.h = self.image.get_width(), self.image.get_height()
@@ -73,14 +74,18 @@ class Player(pg.sprite.Sprite):
         self.collide = False
     
     def movement_update(self, keys,rectangle):
-        self.prev_pos = pg.Vector2(global_pos)
+        global global_pos
+
+        self.prev_pos = self.rect.topleft
+
+
         self.rect.x, self.rect.y = self.blit_pos.x, self.blit_pos.y
-        prev_rect1_pos = global_pos
+
         if keys[pg.K_3]:
             self.speed+=2
         elif keys[pg.K_1]:
             self.speed-=2
-            
+        current_pos = pg.Vector2(global_pos)
         if keys[pg.K_w] or keys[pg.K_UP]:
             global_pos.y -= self.speed
             self.walking = True
@@ -97,15 +102,26 @@ class Player(pg.sprite.Sprite):
             global_pos.x += self.speed
             self.walking = True
             self.sprite_direction = 'r'
-        
+
+        # Update the leg animation
         self.this_leg = (self.this_leg + 1) % self.cycle_len
-        self.image = pg.image.load(f'./Media/images/player/{self.sprite_direction}player{self.leg_cycle[self.this_leg] if self.walking else ""}.png')
+        # Load the appropriate player image based on direction and walking state
+        self.image = pg.image.load(
+            f'./Media/images/player/{self.sprite_direction}player{self.leg_cycle[self.this_leg] if self.walking else ""}.png')
         self.walking = False
+
+        # Check for collision with the rectangle
         if self.rect.colliderect(rectangle):
-            self.top_left = prev_rect1_pos
+            global_pos = current_pos
+            self.rect.topleft = current_pos
+            print(self.rect.topleft)
+            print(self.prev_pos)
+
             print("yaas")
-        
-    def boundary_update(self, map):    
+
+
+
+    def boundary_update(self, map):
         # pass
         if global_pos.x<=window_c[0]:
             self.blit_pos.x = global_pos.x
@@ -131,8 +147,6 @@ class Player(pg.sprite.Sprite):
     def blit(self):
         display.blit(self.image, self.blit_pos)
 
-    def givetopleft(self):
-        return self.top_left
 
 class Minimap(pg.sprite.Sprite):
     def __init__(self, image, player_image):
