@@ -13,10 +13,8 @@ bg_k = 6
 mp_k = 0.4
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 player_img = pg.image.load('./Media/images/player/fplayer.png')
-def draw_rect_alpha(surface, color, rect):
-    shape_surf = pg.Surface(pg.Rect(rect).size, pg.SRCALPHA)
-    pg.draw.rect(shape_surf, color, shape_surf.get_rect())
-    surface.blit(shape_surf, rect)
+coin_img = pg.image.load('./Media/images/coin.jpg')
+
 
 spn = (2450, 2040)
 global_pos = pg.Vector2(spn[0],spn[1])
@@ -54,17 +52,14 @@ class Map(pg.sprite.Sprite):
 
 
 class Player(pg.sprite.Sprite):
-    def __init__(self,top_left ,image ):
+    def __init__(self, image):
         pg.sprite.Sprite.__init__(self)
         self.image = image
         self.rect = self.image.get_rect()
-        self.top_left =top_left
-        self.left = top_left[0] * bg_k
-        self.top = top_left[1] * bg_k
         self.w, self.h = self.image.get_width(), self.image.get_height()
         self.PLAYER_BLIT_CENTER = pg.Vector2(window_c[0] - self.w//2, window_c[1] - self.h//2)
         self.blit_pos = pg.Vector2(self.PLAYER_BLIT_CENTER.x, self.PLAYER_BLIT_CENTER.y)
-        self.speed = 50
+        self.speed = 10
         self.leg_cycle = ['_wrf', '_wrf', '_wrf', '', '', '', '_wlf', '_wlf', '_wlf', '', '', '']
         self.cycle_len = len(self.leg_cycle)
         self.sprite_direction, self.this_leg = 'f', 0
@@ -117,21 +112,22 @@ class Player(pg.sprite.Sprite):
         else:
             self.blit_pos.y = self.PLAYER_BLIT_CENTER.y
 
-    def collide_update(self, other_rect,prev_rect_pos):
-
-        # Check for collisions
-        self.rect.topleft = prev_rect_pos
-
-    def update(self, keys, map, object,prev_rect_pos):
+    def collide_update(self, object):
+        self.collide = False
+        
+        if self.rect.colliderect(object.rect):
+            self.collide = True
+            global_pos = self.prev_pos
+            
+    
+    def update(self, keys, map, object):
         self.movement_update(keys)
         self.boundary_update(map)
-        self.collide_update(object,prev_rect_pos)
+        self.collide_update(object)
         
     def blit(self):
         display.blit(self.image, self.blit_pos)
-
-    def givetopleft(self):
-        return self.top_left
+        
 
 class Minimap(pg.sprite.Sprite):
     def __init__(self, image, player_image):
@@ -162,21 +158,32 @@ class Object(pg.sprite.Sprite):
         self.w = (bottom_right[0] - top_left[0])*bg_k
         self.h = (bottom_right[1] - top_left[1])*bg_k
         self.rect = pg.Rect(self.top, self.left, self.w, self.h)
-        self.color = (0,255,0,100)
+        self.color = (0,0,255)         
     
     def update(self):
-        self.rect.x, self.rect.y = window_c[0]+(self.left-global_pos[0]), window_c[1]+(self.top-global_pos[1])
-        draw_rect_alpha(display, self.color, self.rect)
-
-
-
-player = Player((0, 0),image=player_img)
+        global player
+        self.rect.x, self.rect.y = player.blit_pos.x+(self.left-global_pos[0]), player.blit_pos.y+(self.top-global_pos[1])
+        pg.draw.rect(display, self.color, self.rect)
+#"""
+class Coin(Object):
+    def __init__(self, top_left):
+        super().__init__(top_left, (top_left[0]+50, top_left[1]+50))
+        self.image = pg.transform.scale(coin_img, (50, 50))
+        self.rect = self.image.get_rect()
+    def blit(self):
+        self.blit_pos = pg.Vector2(self.rect.x,self.rect.y)
+        display.blit(self.image, self.blit_pos)
+#"""
+                
+player = Player(image=player_img)
 map = Map(image=true_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
 game_run = True
 clock = pg.time.Clock()
 
 red_house = Object((472, 314), (533, 380))
+acoin = Coin((472, 314))
+
 
 while game_run:
     for event in pg.event.get():
@@ -184,16 +191,18 @@ while game_run:
             game_run = False
 
     keys = pg.key.get_pressed()
-    prev_rect1_pos = player.givetopleft()
-    if player.rect.colliderect(red_house):
-        player.collide_update(red_house,prev_rect1_pos)
-    player.update(keys, map,red_house,prev_rect1_pos)
+   
+    player.update(keys, map,red_house)
     map.update()
     minimap.update()
+   
+    
     display.fill((255, 0, 0))
     map.blit()
     minimap.blit()
-    red_house.update()
+    #red_house.update()
+    acoin.update()
+    acoin.blit()
     text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {player.rect} {red_house.rect}", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
