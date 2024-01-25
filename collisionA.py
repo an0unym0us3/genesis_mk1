@@ -76,7 +76,7 @@ class Player(pg.sprite.Sprite):
     def movement_update(self, keys,rectangle):
         global global_pos
 
-        self.prev_pos = self.rect.topleft
+        prev_pos1 = global_pos
 
 
         self.rect.x, self.rect.y = self.blit_pos.x, self.blit_pos.y
@@ -110,14 +110,14 @@ class Player(pg.sprite.Sprite):
             f'./Media/images/player/{self.sprite_direction}player{self.leg_cycle[self.this_leg] if self.walking else ""}.png')
         self.walking = False
 
+        self.collideflag = 'not yaas'
         # Check for collision with the rectangle
         if self.rect.colliderect(rectangle):
-            global_pos = current_pos
-            self.rect.topleft = current_pos
-            print(self.rect.topleft)
-            print(self.prev_pos)
+            global_pos = prev_pos1
+            
+            # print(self.prev_pos)
 
-            print("yaas")
+            self.collideflag = "yaas"
 
 
 
@@ -207,7 +207,7 @@ while game_run:
     map.blit()
     minimap.blit()
     red_house.update()
-    text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {player.rect} {red_house.rect}", False, (200, 255, 200), (70,100,80))
+    text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {player.rect} {red_house.rect} {player.collideflag}", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
     
