@@ -13,9 +13,9 @@ pygame.init()
 width, height = 1200, 1000
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Collision Detector")
-IMAGE = pygame.image.load('/genesis_mk1/Media/images/pokemon house.png').convert()
+IMAGE = pygame.image.load('../Media/images/pokemon_house.png').convert()
 # Image.small makes the image smaller. rect2 and rect3 MUST be equal
-IMAGE_SMALL = pygame.transform.scale(IMAGE, (100, 100))
+IMAGE_SMALL = pygame.transform.scale(IMAGE, (500, 500))
 
 
 # Set up colors
@@ -30,7 +30,8 @@ rect1 = pygame.Rect(100, 100, 50, 50)
 rect2 = pygame.Rect(200, 200, 100, 100)
 rect3 = pygame.Rect(200, 200, 100, 100)
 font = pygame.font.Font(None, 36)
-
+rect2 = IMAGE_SMALL.get_rect()
+rect2.fill((0,0,0))
 # Set up toggle button
 toggle_button = pygame.Rect(20, 20, 80, 50)
 toggle_text = font.render("see", True, white)

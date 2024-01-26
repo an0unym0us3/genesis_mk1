@@ -1,4 +1,5 @@
 import pygame as pg
+
 pg.init()
 
 window_w, window_h = 1280, 720
@@ -66,7 +67,8 @@ class Player(pg.sprite.Sprite):
         self.walking = False
         self.prev_pos = pg.Vector2(global_pos)
         self.collide = False
-    
+        self.changed = 0,0
+        self.color = (255,0,0)
     def movement_update(self, keys):
         self.prev_pos = pg.Vector2(global_pos)
         self.rect.x, self.rect.y = self.blit_pos.x, self.blit_pos.y
@@ -91,7 +93,7 @@ class Player(pg.sprite.Sprite):
             global_pos.x += self.speed
             self.walking = True
             self.sprite_direction = 'r'
-        
+        self.changed = global_pos.x - self.prev_pos.x, global_pos.y- self.prev_pos.y
         self.this_leg = (self.this_leg + 1) % self.cycle_len
         self.image = pg.image.load(f'./Media/images/player/{self.sprite_direction}player{self.leg_cycle[self.this_leg] if self.walking else ""}.png')
         self.walking = False
@@ -113,17 +115,55 @@ class Player(pg.sprite.Sprite):
             self.blit_pos.y = self.PLAYER_BLIT_CENTER.y
 
     def collide_update(self, object):
-        self.collide = False
-        
+        global global_pos
+        self.collide = False        
         if self.rect.colliderect(object.rect):
             self.collide = True
-            global_pos = self.prev_pos
+            self.offset = [0,0]
+                                                            
+            if self.changed[0]>0:
+                if abs(object.rect.x - (self.blit_pos[0]+self.w))<=self.speed:
+                    self.offset[0] = -1
+                else:
+                    self.offset[0] = 1
+            elif self.changed[0]<0:
+                if abs((object.rect.x + object.w) - self.blit_pos[0])<=self.speed:
+                    self.offset[0] = 1
+                else:
+                    self.offset[0] = -1
+            if self.changed[1]>0:
+                if abs(object.rect.y - (self.blit_pos[1]+self.h))<=self.speed:
+                    self.offset[1] = -1
+                else:
+                    self.offset[1] = 1
+            elif self.changed[1]<0:
+                if abs((object.rect.y + object.h) - self.blit_pos[1])<=self.speed:
+                    self.offset[1] = 1
+                else:
+                    self.offset[1] = -1
+            """
+            if self.changed[0]>0:
+                self.offset[0] = -1
+            elif self.changed[0]<0:
+                self.offset[0] = 1
+            if self.changed[1]>0:
+                self.offset[1] = -1
+            elif self.changed[1]<0:
+                self.offset[1] = 1
+            """
+           
+            global_pos = pg.Vector2(self.prev_pos.x+self.speed*self.offset[0], self.prev_pos.y+self.speed*self.offset[1])
             
+    def draw(self):
+        pg.draw.rect(display, self.color, self.rect)
     
-    def update(self, keys, map, object):
+    def update(self, keys, map, *objects):
         self.movement_update(keys)
         self.boundary_update(map)
-        self.collide_update(object)
+        for object in objects:
+            self.collide_update(object)
+        
+        self.boundary_update(map)
         
     def blit(self):
         display.blit(self.image, self.blit_pos)
@@ -162,18 +202,18 @@ class Object(pg.sprite.Sprite):
     
     def update(self):
         global player
-        self.rect.x, self.rect.y = player.blit_pos.x+(self.left-global_pos[0]), player.blit_pos.y+(self.top-global_pos[1])
-        pg.draw.rect(display, self.color, self.rect)
-#"""
+        self.rect.x, self.rect.y = player.blit_pos.x+(self.left-global_pos[0]) + player.w/2, player.blit_pos.y+(self.top-global_pos[1])+player.h/2
+        #pg.draw.rect(display, self.color, self.rect)
+
 class Coin(Object):
     def __init__(self, top_left):
         super().__init__(top_left, (top_left[0]+50, top_left[1]+50))
         self.image = pg.transform.scale(coin_img, (50, 50))
         self.rect = self.image.get_rect()
+        
     def blit(self):
         self.blit_pos = pg.Vector2(self.rect.x,self.rect.y)
         display.blit(self.image, self.blit_pos)
-#"""
                 
 player = Player(image=player_img)
 map = Map(image=true_bg_img)
@@ -181,7 +221,17 @@ minimap = Minimap(image=true_bg_img, player_image = player_img)
 game_run = True
 clock = pg.time.Clock()
 
-red_house = Object((472, 314), (533, 380))
+objects = dict()
+house_top = Object([472, 314], [533, 360])
+house_bottom = Object([167, 170], [228, 217])
+health = Object([242, 177], [315, 234])
+mart = Object([322, 191], [404, 249])
+objects["house_top"]=house_top
+objects["house_bottom"]=house_bottom
+objects["health"]=health
+objects["mart"]=mart
+
+    
 acoin = Coin((472, 314))
 
 
@@ -192,7 +242,7 @@ while game_run:
 
     keys = pg.key.get_pressed()
    
-    player.update(keys, map,red_house)
+    player.update(keys, map, *objects.values())
     map.update()
     minimap.update()
    
@@ -200,13 +250,15 @@ while game_run:
     display.fill((255, 0, 0))
     map.blit()
     minimap.blit()
-    #red_house.update()
+    for object in objects.values():
+        object.update()
+    
     acoin.update()
     acoin.blit()
-    text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {player.rect} {red_house.rect}", False, (200, 255, 200), (70,100,80))
+    text_surface = my_font.render(f"Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w}{player.changed} ", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
-    
+    #player.draw()
     pg.display.flip()
     clock.tick(15)
 
