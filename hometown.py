@@ -1,5 +1,8 @@
 import pygame as pg
+
+
 pg.init()
+
 
 # Setting up basic information like how the pop-up window should be, what font, etc. Variables for convenience
 window_w, window_h = 1280, 720
@@ -158,6 +161,7 @@ while game_run:
     flag_debug = my_font.render(f"player_blit_pos Flag:{player_blit_pos.x <= PLAYER_BLIT_CENTER.x}            map_pos Flag:{map_pos.x >= 0}", False, (200, 255, 200), (70,100,80))
     display.blit(flag_debug, (0, 0))
 
+    snake_game
     
 
     # Update the display to show the next frame and our hard work
