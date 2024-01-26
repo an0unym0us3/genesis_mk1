@@ -131,7 +131,7 @@ def game_over():
                                 # button the game is terminated 
 				if width/2 <= mouse[0] <= width/2+140 and height/2 <= mouse[1] <= height/2+40: 
 					pygame.quit() 
-				
+
  
 	
                 # stores the (x,y) coordinates into 
@@ -235,5 +235,5 @@ while True:
         # Frame Per Second /Refresh Rate
         fps.tick(snake_speed)
 
-
+game_run=True
 
