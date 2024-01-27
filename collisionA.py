@@ -2,6 +2,7 @@ import pygame as pg
 import subprocess
 import random
 import os, json
+import math
 
 pg.init()
 
@@ -15,10 +16,13 @@ window_c = (window_w//2, window_h//2)
 
 bg_k = 6
 mp_k = 0.4
+
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 transp_bg_img = pg.image.load('./Media/images/background/bg_trans.png')
 player_img = pg.image.load('./Media/images/player/normal/fplayer.png')
 coin_img = pg.image.load('./Media/images/coin.png')
+gun_img = pg.image.load('./Media/images/weapons/gun_green.png')
+
 transp_layer_opacity=127
 coin_spawns = (((0,200), (160,480)), ((250,270), (400,480)), ((430,390),(800,480)), ((690,230),(800,380)))
 
@@ -80,6 +84,8 @@ class Player(pg.sprite.Sprite):
         self.changed = 0,0
         self.color = (255,0,0)
         self.camouflage=False
+        self.shooting = True
+        self.bullet_shot = False
         self.left, self.right, self.top, self.bottom = False, False, False, False
 
         
@@ -170,24 +176,25 @@ class Player(pg.sprite.Sprite):
                     self.offset[1] = 1
                 else:
                     self.offset[1] = -1
-            """
-            if self.changed[0]>0:
-                self.offset[0] = -1
-            elif self.changed[0]<0:
-                self.offset[0] = 1
-            if self.changed[1]>0:
-                self.offset[1] = -1
-            elif self.changed[1]<0:
-                self.offset[1] = 1
-            """
+
            
             global_pos = pg.Vector2(self.prev_pos.x+self.speed*self.offset[0], self.prev_pos.y+self.speed*self.offset[1])
             
     def draw(self):
         pg.draw.rect(display, self.color, self.rect)
     
-    def update(self, keys, map, *objects):
+    def gun_update(self, keys, gun):
+        if keys[pg.K_CAPSLOCK]:
+            self.shooting = not self.shooting
+        if self.shooting:
+            if keys[pg.K_SPACE]:
+                self.bullet_shot= True
+                gun.shoot()
+        gun.update(self.shooting)
+    
+    def update(self, keys, map, gun, *objects):
         self.movement_update(keys)
+        self.gun_update(keys, gun)
         self.boundary_update(map)
         self.camouflage=False
         for object in objects:
@@ -203,6 +210,11 @@ class Player(pg.sprite.Sprite):
         
     def blit(self):
         display.blit(self.image, self.blit_pos)
+        
+        for bullet in gun.bullets:
+            bullet.draw()
+        if self.shooting:
+            gun.blit()
         
 
 class Minimap(pg.sprite.Sprite):
@@ -228,7 +240,8 @@ class Minimap(pg.sprite.Sprite):
         display.blit(self.player_image, self.player_blit_pos)
 
 class Object(pg.sprite.Sprite):
-    def __init__(self, top_left, bottom_right, collide=True, func=None):
+    def __init__(self, top_left, bottom_right, collide=True, func=None):   
+        pg.sprite.Sprite.__init__(self)
         self.left = top_left[0]* bg_k
         self.top = top_left[1] * bg_k
         self.collide=collide
@@ -245,6 +258,7 @@ class Object(pg.sprite.Sprite):
 
 class Coin(Object):
     def __init__(self):
+        pg.sprite.Sprite.__init__(self)
         top_left=[0,0]
         spawn_choice = coin_spawns[random.randint(0, len(coin_spawns)-1)]
         top_left[0] = random.randrange(spawn_choice[0][0], spawn_choice[1][0])
@@ -269,6 +283,73 @@ class Coin(Object):
         self.blit_pos = pg.Vector2(self.rect.x,self.rect.y)
         display.blit(self.image, self.blit_pos)
 
+class Bullet(pg.sprite.Sprite):
+    def __init__(self, pos, angle, dimension=(10,10), color=(0,0,0), velocity=10):
+        pg.sprite.Sprite.__init__(self)
+        self.pos = pos
+        self.velocity = velocity
+        self.w, self.h = dimension[0], dimension[1]
+        self.color = color
+        self.angle = angle
+        self.rect = pg.rect.Rect(self.pos[0], self.pos[1], self.w, self.h)
+    
+    def draw(self):
+        self.rect.x, self.rect.y = self.pos
+        pg.draw.rect(display, self.color, self.rect)
+    
+        
+
+class Gun(pg.sprite.Sprite):
+    def __init__(self, image, player, gun_space=25, gun_scale=1.25):
+        pg.sprite.Sprite.__init__(self)
+        self.image = image
+        self.gun_space = gun_space
+        self.gun_scale = gun_scale
+        self.angle = pg.Vector2(pg.mouse.get_pos())-player.blit_pos
+        self.w, self.h = self.image.get_width(), self.image.get_height()
+        self.image=pg.transform.scale(self.image, (self.w*self.gun_scale, self.h*self.gun_scale))
+        self.blit_pos = pg.Vector2(player.blit_pos.x, player.blit_pos.y+self.gun_space)
+        self.images = []        
+        for i in range(8):
+            self.images.append(pg.transform.flip(pg.transform.rotate(self.image, (45*i +((3<=i<=5)*(4-2*i)*45))), (3<=i<=5), False))
+        self.bullets = []
+        
+    def gun_tilt_update(self):
+        global player
+        mouse_pos = pg.mouse.get_pos()
+        player_pos = player.blit_pos.x + player.w/2-self.w/2, player.blit_pos.y + player.h/2-self.h/2
+        angle_pos = mouse_pos[0]-player_pos[0], player_pos[1]-mouse_pos[1]
+        self.angle = math.atan((angle_pos[1]+0.001)/(angle_pos[0]+0.001))
+        if angle_pos[0] <0:
+            self.angle = self.angle + math.pi
+        self.image = self.images[int((self.angle//(math.pi/8)+1)//2)]
+        self.blit_pos.x, self.blit_pos.y = (player_pos[0] + math.cos(self.angle)*self.gun_space), (player_pos[1] - math.sin(self.angle)*self.gun_space/2 + player.h/10)
+    
+    def bullet_update(self):
+        for bullet in self.bullets:
+            if 0<=bullet.pos[0]<=window_w and 0<=bullet.pos[1]<=window_h:
+                bullet.pos[0] += math.cos(bullet.angle)*bullet.velocity
+                bullet.pos[1] -= math.sin(bullet.angle)*bullet.velocity
+            else:
+                self.bullets.pop(self.bullets.index(bullet))
+    def update(self, shooting):
+        if shooting:
+            self.gun_tilt_update()
+        self.bullet_update()           
+              
+    def shoot(self):
+        if len(self.bullets)<10:
+            angle_mult = float(self.images.index(self.image))
+            pos = list(self.blit_pos)
+            if angle_mult==1 or angle_mult==5:
+                pos[0] += self.h
+            
+            self.bullets.append(Bullet(pos=pos, angle=angle_mult*math.pi/4))
+    
+    def blit(self):
+        display.blit(self.image, self.blit_pos)
+        
+        
 def snake_game():
     subprocess.run(snake_game)
 
@@ -280,6 +361,7 @@ with open('./data/saved.json', 'r') as file:
 player = Player(image=player_img)
 map = Map(image=true_bg_img, transp_image=transp_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
+gun = Gun(image = gun_img, player=player)
 game_run = True
 
 clock = pg.time.Clock()
@@ -331,28 +413,27 @@ while game_run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             game_run = False
-            json_object = json.dumps(data, indent=4)
-            """
-            with open("C:/Users/ray/OneDrive/Documents/G11_Project/genesis_mk1/data/saved.json", "w") as outfile:
-                outfile.write(json_object)
-            """
+
+
     keys = pg.key.get_pressed()
    
-    player.update(keys, map, *objects.values())
+    player.update(keys, map, gun, *objects.values())
     map.update()
     minimap.update()
-   
     
     display.fill((255, 0, 0))
     map.blit()
-    
     for object in objects.values():
         object.update()
     
     for coin in coins:
         coin.update_coin()
     
-    text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w}{door_1.collide} {door_1.func} {door_1.rect.colliderect(player.rect)}", False, (200, 255, 200), (70,100,80))
+    if gun.bullets:
+        bul = gun.bullets[0].pos
+    else:
+        bul=0
+    text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {bul}{gun.angle}{player.changed}", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
     map.transp_blit()
@@ -361,5 +442,7 @@ while game_run:
     pg.display.flip()
     clock.tick(15)
 
-
+with open("./data/saved.json", "w") as outfile:
+    json.dump(data, outfile)
+    
 pg.quit()
