@@ -317,7 +317,7 @@ class Coin(Object):
         display.blit(self.image, self.blit_pos)
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, pos, angle, radius=7.5, color=(200,50,40), velocity=20):
+    def __init__(self, pos, angle, radius=7.5, color=(30,170,80), velocity=20):
         pg.sprite.Sprite.__init__(self)
         self.pos = pos
         self.velocity = velocity
@@ -393,7 +393,8 @@ class Gun(pg.sprite.Sprite):
         else:
             if self.ammo[0]<self.AMMO[0]:
                 if self.ammo[1]< self.AMMO[0]:
-                    self.ammo = [self.ammo[1], 0]
+                    if self.ammo[1]>0:
+                        self.ammo = [self.ammo[1], 0]
                 else:
                     self.ammo = [self.AMMO[0], self.ammo[1]-self.AMMO[0]+self.ammo[0]]
         
