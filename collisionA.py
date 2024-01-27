@@ -10,7 +10,7 @@ window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
 pg.display.set_caption('Falschung')
 my_font = pg.font.SysFont('Helvetica', 20)
-ammo_font = pg.font.Font('./Media/Fonts/pixeloid.ttf', 50)
+ammo_font = pg.font.Font('./Media/Fonts/pixeloid_bold.ttf', 50)
 window_c = (window_w//2, window_h//2)
 
 
@@ -508,8 +508,8 @@ class UI():
         self.player_health_bar.width = health/500 * 250
         pg.draw.rect(display, ((health<=100) * 255, (health>100)*255,0), self.player_health_bar)
         
-        ammo_display = ammo_font.render(f"{ammo[0]}/{ammo[1]}", False, (50, 50, 50), )
-        display.blit(ammo_display, (window_w-175, window_h-75))
+        ammo_display = ammo_font.render(f"{ammo[0]}/{ammo[1]}", False, (50, 70, 50))
+        display.blit(ammo_display, (window_w-200, window_h-60))
     
 def snake_game():
     subprocess.run(snake_game)
