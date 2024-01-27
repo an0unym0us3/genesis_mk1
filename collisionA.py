@@ -10,21 +10,26 @@ window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
 pg.display.set_caption('Falschung')
 my_font = pg.font.SysFont('Helvetica', 20)
-
+ammo_font = pg.font.Font('./Media/Fonts/pixeloid.ttf', 50)
 window_c = (window_w//2, window_h//2)
 
 
 bg_k = 6
 mp_k = 0.4
 bullet_dmg = 20
+ghost_dmg = 5
+attacked= False
 
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 transp_bg_img = pg.image.load('./Media/images/background/bg_trans.png')
+attacked_bg_img = pg.image.load('./Media/images/background/bg_attacked.jpg')
 player_img = pg.image.load('./Media/images/player/normal/fplayer.png')
 coin_img = pg.image.load('./Media/images/coin.png')
 gun_img = pg.image.load('./Media/images/weapons/gun_green.png')
 ghost_img = pg.image.load('./Media/images/enemy/ghost.png')
+small_ghost_img = pg.image.load('./Media/images/enemy/small_ghost.png')
 ghost_gun_img = pg.image.load('./Media/images/weapons/gun_ghost.png')
+
 
 
 transp_layer_opacity=127
@@ -35,18 +40,25 @@ spn = (2450, 2040)
 global_pos = pg.Vector2(spn[0],spn[1])
 
 class Map(pg.sprite.Sprite):
-    def __init__(self, image, transp_image):
+    def __init__(self, image, transp_image, attacked_image):
+        global attacked
         pg.sprite.Sprite.__init__(self)
         image = pg.transform.scale(image, (image.get_width()*bg_k, image.get_height()*bg_k))
         transp_image = pg.transform.scale(transp_image, (transp_image.get_width()*bg_k, transp_image.get_height()*bg_k))
         transp_image.set_alpha(transp_layer_opacity)
+        attacked_image = pg.transform.scale(attacked_image, (window_w, window_h))
+        attacked_image.set_alpha(transp_layer_opacity)
         self.image = image
         self.transp_image = transp_image
+        self.attacked_image = attacked_image
         self.rect = self.image.get_rect()
         self.w, self.h = image.get_width(), image.get_height()
         self.blit_pos = pg.Vector2(global_pos)
+        attacked=False
             
     def update(self):
+        global attacked
+        attacked=False
         self.boundary_update()
     
     def boundary_update(self):
@@ -69,6 +81,8 @@ class Map(pg.sprite.Sprite):
         display.blit(self.image, self.blit_pos)
     def transp_blit(self):
         display.blit(self.transp_image, self.blit_pos)
+    def attacked_blit(self):
+        display.blit(self.attacked_image, (0,0))
         
 
 class Player(pg.sprite.Sprite):
@@ -93,6 +107,8 @@ class Player(pg.sprite.Sprite):
         self.bullet_shot = False
         self.left, self.right, self.top, self.bottom = False, False, False, False
         self.health = 500
+        self.attacked = False
+        
 
         
     def movement_update(self, keys):
@@ -154,6 +170,10 @@ class Player(pg.sprite.Sprite):
         self.left, self.right, self.top, self.bottom = False, False, False, False
         
         if self.rect.colliderect(object.rect):
+            if object.name == "health":
+                self.health =500
+            if object.name == "mart":
+                gun.reload(full=True)
             self.left, self.right, self.top, self.bottom =(abs(object.rect.x - (self.blit_pos[0]+self.w))<=self.speed,
                                                        abs((object.rect.x + object.w) - self.blit_pos[0])<=self.speed,
                                                        abs(object.rect.y - (self.blit_pos[1]+self.h))<=self.speed,
@@ -191,6 +211,8 @@ class Player(pg.sprite.Sprite):
     def gun_update(self, keys, gun):
         if keys[pg.K_CAPSLOCK]:
             self.shooting = not self.shooting
+        if keys[pg.K_r]:
+            gun.reload()
         if self.shooting:
             if keys[pg.K_SPACE]:
                 self.bullet_shot= True
@@ -215,7 +237,7 @@ class Player(pg.sprite.Sprite):
         
     def blit(self):
         display.blit(self.image, self.blit_pos)
-        
+       
         for bullet in gun.bullets:
             bullet.draw()
         if self.shooting:
@@ -245,7 +267,7 @@ class Minimap(pg.sprite.Sprite):
         display.blit(self.player_image, self.player_blit_pos)
 
 class Object(pg.sprite.Sprite):
-    def __init__(self, top_left, bottom_right, collide=True, func=None, no_mult=False):   
+    def __init__(self, top_left, bottom_right, name= None, collide=True, func=None, no_mult=False):   
         pg.sprite.Sprite.__init__(self)
         if no_mult:
             mult=1
@@ -258,7 +280,8 @@ class Object(pg.sprite.Sprite):
         self.w = (bottom_right[0] - top_left[0])*mult
         self.h = (bottom_right[1] - top_left[1])*mult
         self.rect = pg.Rect(self.top, self.left, self.w, self.h)
-        self.color = (0,0,255)         
+        self.color = (0,0,255)
+        self.name = name
     
     def update(self):
         global player
@@ -278,6 +301,7 @@ class Coin(Object):
         self.rect = self.image.get_rect()
     
     def update_coin(self):
+        self.blit_pos = self.rect.topleft
         global player, score
         if player.rect.colliderect(self.rect):
             self.collected = True
@@ -293,18 +317,18 @@ class Coin(Object):
         display.blit(self.image, self.blit_pos)
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, pos, angle, dimension=(10,10), color=(0,0,0), velocity=10):
+    def __init__(self, pos, angle, radius=7.5, color=(200,50,40), velocity=20):
         pg.sprite.Sprite.__init__(self)
         self.pos = pos
         self.velocity = velocity
-        self.w, self.h = dimension[0], dimension[1]
+        self.radius = radius
         self.color = color
         self.angle = angle
-        self.rect = pg.rect.Rect(self.pos[0], self.pos[1], self.w, self.h)
+        self.rect = pg.rect.Rect(self.pos[0], self.pos[1], self.radius, self.radius)
     
     def draw(self):
         self.rect.x, self.rect.y = self.pos
-        pg.draw.rect(display, self.color, self.rect)
+        pg.draw.circle(display, self.color, self.rect.center, self.radius)
     
 
 class Gun(pg.sprite.Sprite):
@@ -317,10 +341,14 @@ class Gun(pg.sprite.Sprite):
         self.w, self.h = self.image.get_width(), self.image.get_height()
         self.image=pg.transform.scale(self.image, (self.w*self.gun_scale, self.h*self.gun_scale))
         self.blit_pos = pg.Vector2(player.blit_pos.x, player.blit_pos.y+self.gun_space)
-        self.images = []        
+        self.images = []   
         for i in range(8):
             self.images.append(pg.transform.flip(pg.transform.rotate(self.image, (45*i +((3<=i<=5)*(4-2*i)*45))), (3<=i<=5), False))
         self.bullets = []
+        self.BULLET_COUNTER=1
+        self.bullet_counter=0
+        self.AMMO = 25,75
+        self.ammo = list(self.AMMO)
         
     def gun_tilt_update(self):
         global player
@@ -346,19 +374,44 @@ class Gun(pg.sprite.Sprite):
         self.bullet_update()           
               
     def shoot(self):
-        if len(self.bullets)<10:
-            angle_mult = float(self.images.index(self.image))
-            pos = list(self.blit_pos)
-            if angle_mult==1 or angle_mult==5:
-                pos[0] += self.h
+        if self.bullet_counter==0:
+            if self.ammo[0]>0:
+                self.ammo[0]-=1
+                self.bullet_counter=self.BULLET_COUNTER
+                angle_mult = float(self.images.index(self.image))
+                pos = list(self.blit_pos)
+                if angle_mult==1 or angle_mult==5:
+                    pos[0] += self.h
+                
+                self.bullets.append(Bullet(pos=pos, angle=angle_mult*math.pi/4))
+        else:
+            self.bullet_counter-=1
             
-            self.bullets.append(Bullet(pos=pos, angle=angle_mult*math.pi/4))
-    
+    def reload(self, full=False):
+        if full:
+           self.ammo = [self.AMMO[0], self.AMMO[1]]
+        else:
+            if self.ammo[0]<self.AMMO[0]:
+                if self.ammo[1]< self.AMMO[0]:
+                    self.ammo = [self.ammo[1], 0]
+                else:
+                    self.ammo = [self.AMMO[0], self.ammo[1]-self.AMMO[0]+self.ammo[0]]
+        
     def blit(self):
         display.blit(self.image, self.blit_pos)
-        
+
+class Small_Ghost(pg.sprite.Sprite):
+    def __init__(self, pos, angle, image, velocity=10):
+        pg.sprite.Sprite.__init__(self)
+        self.pos = pos
+        self.velocity = velocity
+        self.image = pg.transform.scale(image, (25,25))
+        self.w, self.h = self.image.get_width(), self.image.get_height()
+        self.angle = angle
+        self.rect = pg.rect.Rect(self.pos[0], self.pos[1], self.w, self.h)
+       
 class Ghost(Object):
-    def __init__(self, image=ghost_img, scale=0.5, speed=2, randomizer = 50):
+    def __init__(self, image=ghost_img, scale=0.5, speed=5, randomizer = 50):
         pg.sprite.Sprite.__init__(self)
         self.checkpoints = list()
         for checkpoint in ghost_checkpoints:
@@ -369,17 +422,23 @@ class Ghost(Object):
         top_left=self.checkpoints[cp]
         self.killed = False
         self.image = image
-        self.health = random.randrange(250,1000)
+        self.health = random.randrange(500)
         self.speed=speed
+        self.angle = 0
         self.image = pg.transform.scale(self.image, (image.get_width()*scale, image.get_height()*scale))
         self.w, self.h = self.image.get_width(), self.image.get_height()
         self.rect = self.image.get_rect()
         super().__init__(top_left, (top_left[0]+self.w, top_left[1]+self.h), no_mult=True)
-        
+        self.health_bar = pg.rect.Rect(self.rect.topleft[0], self.rect.topleft[1]+self.h, 100,10)
+        self.blit_pos = self.rect.topleft
+        self.bullets = []
+        self.BULLET_COUNTER=30
+        self.bullet_counter=0
     
     def update_ghost(self):
         global gun, score
 
+        self.blit_pos = pg.Vector2(self.rect.topleft)
         if abs(self.left-self.checkpoints[self.next_cp][0])<50 or abs(self.top-self.checkpoints[self.next_cp][1])<50:
             self.next_cp=(self.next_cp+1)%len(self.checkpoints)
         else:
@@ -387,10 +446,42 @@ class Ghost(Object):
             magnitude = math.sqrt(x**2 + y**2)
             self.left += self.speed*(x/magnitude)
             self.top += self.speed *(y/magnitude)
+            
         for bullet in gun.bullets:
             if bullet.rect.colliderect(self.rect):
                 self.health-=bullet_dmg
+                self.health_bar.width = self.health/500 * 100
                 gun.bullets.pop(gun.bullets.index(bullet))
+                
+        for bullet in self.bullets:
+            if bullet.rect.colliderect(player.rect):
+                player.health-=ghost_dmg
+        
+        if 0<=self.blit_pos.x<=window_w and 0<=self.blit_pos.y<=window_h:
+            global attacked
+            attacked = True
+            angle_pos = player.rect.center[0]-self.rect.center[0], self.rect.center[1]-player.rect.center[1]
+            self.angle = math.atan((angle_pos[1]+0.001)/(angle_pos[0]+0.001))
+            if angle_pos[0] <0:
+                self.angle = self.angle + math.pi
+            
+            if self.bullet_counter==0:
+                self.bullet_counter=self.BULLET_COUNTER
+                pos = list(self.blit_pos)          
+                self.bullets.append(Small_Ghost(pos=pos, angle=float(self.angle), image=small_ghost_img))
+            else:
+                self.bullet_counter-=1
+       
+        for bullet in self.bullets:
+            if 0<=bullet.pos[0]<=window_w and 0<=bullet.pos[1]<=window_h:
+                bullet.pos[0] += (math.cos(bullet.angle)*bullet.velocity - player.changed[0])
+                bullet.pos[1] -= (math.sin(bullet.angle)*bullet.velocity + player.changed[1])
+                bullet.rect.x, bullet.rect.y = bullet.pos
+                display.blit(bullet.image, bullet.pos)
+            else:
+                self.bullets.pop(self.bullets.index(bullet))
+    
+        
         if self.health<0:
             self.killed=True
         if not self.killed:
@@ -404,7 +495,21 @@ class Ghost(Object):
     def blit(self):
         self.blit_pos = pg.Vector2(self.rect.x,self.rect.y)
         display.blit(self.image, self.blit_pos)
+        self.health_bar.topleft = self.blit_pos.x, self.blit_pos.y + self.h, 
+        pg.draw.rect(display, (100,100,100),self.health_bar)
 
+class UI():
+    def __init__(self, health, ammo):
+        self.player_health_bar = pg.rect.Rect(25, window_h-50, 250, 25)
+        self.ammo = ammo
+    def ui_blit(self, health, ammo):
+        self.player_health_bar.width = 250
+        pg.draw.rect(display, (100,100,100), self.player_health_bar)
+        self.player_health_bar.width = health/500 * 250
+        pg.draw.rect(display, ((health<=100) * 255, (health>100)*255,0), self.player_health_bar)
+        
+        ammo_display = ammo_font.render(f"{ammo[0]}/{ammo[1]}", False, (50, 50, 50), )
+        display.blit(ammo_display, (window_w-175, window_h-75))
     
 def snake_game():
     subprocess.run(snake_game)
@@ -415,11 +520,11 @@ with open('./data/saved.json', 'r') as file:
 
           
 player = Player(image=player_img)
-map = Map(image=true_bg_img, transp_image=transp_bg_img)
+map = Map(image=true_bg_img, transp_image=transp_bg_img, attacked_image =attacked_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
 gun = Gun(image = gun_img, player=player)
 game_run = True
-
+ui = UI(player.health, gun.ammo)
 clock = pg.time.Clock()
 
 objects = dict()
@@ -428,8 +533,8 @@ coins = list()
 
 house_bottom = Object([472, 314], [533, 360])
 house_top = Object([167, 170], [228, 217])
-health = Object([242, 177], [315, 234])
-mart = Object([322, 191], [404, 249])
+health = Object([242, 177], [315, 234], name="health")
+mart = Object([322, 191], [404, 249], name="mart")
 big_house = Object([566, 170],[654, 230])
 block_1 = Object([400,0], [458,194])
 block_2 = Object([460,86], [587,100])
@@ -438,9 +543,9 @@ block_4 = Object([0,134], [165, 165])
 trees_1 = Object([192,313], [235, 349])
 trees_2 = Object([621, 281], [672, 314])
 board = Object([400,320],[412, 327])
-forest_1 = Object([0,200], [120,480], False)
+forest_1 = Object([0,200], [120,480], collide=False)
 
-door_1 = Object([478, 361], [496, 365], False, snake_game)
+door_1 = Object([478, 361], [496, 365], collide=False, func=snake_game)
 
 objects["house_top"]=house_top
 objects["house_bottom"]=house_bottom
@@ -494,12 +599,16 @@ while game_run:
     for ghost in ghosts:
         ghost.update_ghost()
     
-    text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {ghost_1.blit_pos}{ghost_1.top, ghost_1.left} {ghost_1.checkpoints[ghost_1.next_cp]}", False, (200, 255, 200), (70,100,80))
+    
+    text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w}  ", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
     map.transp_blit()
+    if attacked:
+        map.attacked_blit()
     #player.draw()
     minimap.blit()
+    ui.ui_blit(player.health, gun.ammo)
     pg.display.flip()
     clock.tick(15)
 
