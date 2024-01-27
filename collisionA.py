@@ -16,15 +16,20 @@ window_c = (window_w//2, window_h//2)
 
 bg_k = 6
 mp_k = 0.4
+bullet_dmg = 20
 
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 transp_bg_img = pg.image.load('./Media/images/background/bg_trans.png')
 player_img = pg.image.load('./Media/images/player/normal/fplayer.png')
 coin_img = pg.image.load('./Media/images/coin.png')
 gun_img = pg.image.load('./Media/images/weapons/gun_green.png')
+ghost_img = pg.image.load('./Media/images/enemy/ghost.png')
+ghost_gun_img = pg.image.load('./Media/images/weapons/gun_ghost.png')
+
 
 transp_layer_opacity=127
 coin_spawns = (((0,200), (160,480)), ((250,270), (400,480)), ((430,390),(800,480)), ((690,230),(800,380)))
+ghost_checkpoints = ((20,200), (80,460), (690,460), (780,280))
 
 spn = (2450, 2040)
 global_pos = pg.Vector2(spn[0],spn[1])
@@ -87,6 +92,7 @@ class Player(pg.sprite.Sprite):
         self.shooting = True
         self.bullet_shot = False
         self.left, self.right, self.top, self.bottom = False, False, False, False
+        self.health = 500
 
         
     def movement_update(self, keys):
@@ -119,7 +125,6 @@ class Player(pg.sprite.Sprite):
         self.walking = False
         
     def boundary_update(self, map):    
-        # pass
         if global_pos.x<=0:
             global_pos.x=0
         elif global_pos.x>=map.w-self.w/2:
@@ -240,21 +245,25 @@ class Minimap(pg.sprite.Sprite):
         display.blit(self.player_image, self.player_blit_pos)
 
 class Object(pg.sprite.Sprite):
-    def __init__(self, top_left, bottom_right, collide=True, func=None):   
+    def __init__(self, top_left, bottom_right, collide=True, func=None, no_mult=False):   
         pg.sprite.Sprite.__init__(self)
-        self.left = top_left[0]* bg_k
-        self.top = top_left[1] * bg_k
+        if no_mult:
+            mult=1
+        else:
+            mult = bg_k
+        self.left = top_left[0]* mult
+        self.top = top_left[1] * mult
         self.collide=collide
         self.func = func
-        self.w = (bottom_right[0] - top_left[0])*bg_k
-        self.h = (bottom_right[1] - top_left[1])*bg_k
+        self.w = (bottom_right[0] - top_left[0])*mult
+        self.h = (bottom_right[1] - top_left[1])*mult
         self.rect = pg.Rect(self.top, self.left, self.w, self.h)
         self.color = (0,0,255)         
     
     def update(self):
         global player
         self.rect.x, self.rect.y = player.blit_pos.x+(self.left-global_pos[0]) + player.w/2, player.blit_pos.y+(self.top-global_pos[1])+player.h/2
-        pg.draw.rect(display, self.color, self.rect)
+        #pg.draw.rect(display, self.color, self.rect)
 
 class Coin(Object):
     def __init__(self):
@@ -297,7 +306,6 @@ class Bullet(pg.sprite.Sprite):
         self.rect.x, self.rect.y = self.pos
         pg.draw.rect(display, self.color, self.rect)
     
-        
 
 class Gun(pg.sprite.Sprite):
     def __init__(self, image, player, gun_space=25, gun_scale=1.25):
@@ -349,7 +357,55 @@ class Gun(pg.sprite.Sprite):
     def blit(self):
         display.blit(self.image, self.blit_pos)
         
+class Ghost(Object):
+    def __init__(self, image=ghost_img, scale=0.5, speed=2, randomizer = 50):
+        pg.sprite.Sprite.__init__(self)
+        self.checkpoints = list()
+        for checkpoint in ghost_checkpoints:
+            self.checkpoints.append((checkpoint[0]*bg_k + random.randrange(-randomizer, randomizer), checkpoint[1]*bg_k +  random.randrange(-randomizer, randomizer)))
+        print(self.checkpoints)
+        cp = random.randint(0,len(self.checkpoints)-1)
+        self.next_cp = (cp+1)%len(self.checkpoints)
+        top_left=self.checkpoints[cp]
+        self.killed = False
+        self.image = image
+        self.health = random.randrange(250,1000)
+        self.speed=speed
+        self.image = pg.transform.scale(self.image, (image.get_width()*scale, image.get_height()*scale))
+        self.w, self.h = self.image.get_width(), self.image.get_height()
+        self.rect = self.image.get_rect()
+        super().__init__(top_left, (top_left[0]+self.w, top_left[1]+self.h), no_mult=True)
         
+    
+    def update_ghost(self):
+        global gun, score
+
+        if abs(self.left-self.checkpoints[self.next_cp][0])<50 or abs(self.top-self.checkpoints[self.next_cp][1])<50:
+            self.next_cp=(self.next_cp+1)%len(self.checkpoints)
+        else:
+            x, y = self.checkpoints[self.next_cp][0]- self.left, self.checkpoints[self.next_cp][1]-self.top
+            magnitude = math.sqrt(x**2 + y**2)
+            self.left += self.speed*(x/magnitude)
+            self.top += self.speed *(y/magnitude)
+        for bullet in gun.bullets:
+            if bullet.rect.colliderect(self.rect):
+                self.health-=bullet_dmg
+                gun.bullets.pop(gun.bullets.index(bullet))
+        if self.health<0:
+            self.killed=True
+        if not self.killed:
+            super().update()
+            self.blit()
+        else:
+            data["coins"]+=10
+            self.__init__()
+    
+        
+    def blit(self):
+        self.blit_pos = pg.Vector2(self.rect.x,self.rect.y)
+        display.blit(self.image, self.blit_pos)
+
+    
 def snake_game():
     subprocess.run(snake_game)
 
@@ -368,6 +424,7 @@ clock = pg.time.Clock()
 
 objects = dict()
 coins = list()
+
 
 house_bottom = Object([472, 314], [533, 360])
 house_top = Object([167, 170], [228, 217])
@@ -409,6 +466,11 @@ d_coin = Coin()
 e_coin = Coin()
 coins = [a_coin,b_coin,c_coin,d_coin,e_coin]
 
+ghost_1 = Ghost()
+ghost_2 = Ghost()
+ghost_3 = Ghost()
+ghosts = [ghost_1, ghost_2, ghost_3]
+
 while game_run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -429,11 +491,10 @@ while game_run:
     for coin in coins:
         coin.update_coin()
     
-    if gun.bullets:
-        bul = gun.bullets[0].pos
-    else:
-        bul=0
-    text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {bul}{gun.angle}{player.changed}", False, (200, 255, 200), (70,100,80))
+    for ghost in ghosts:
+        ghost.update_ghost()
+    
+    text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w} {ghost_1.blit_pos}{ghost_1.top, ghost_1.left} {ghost_1.checkpoints[ghost_1.next_cp]}", False, (200, 255, 200), (70,100,80))
     display.blit(text_surface, (0, window_h-24))
     player.blit()
     map.transp_blit()
