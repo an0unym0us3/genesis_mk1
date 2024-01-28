@@ -19,6 +19,7 @@ BALL_RADIUS = 15
 
 # Paddle Speed
 PADDLE_SPEED = 10  # Increased paddle speed for more excitement
+AI_SPEED = 4  # AI speed for Player 2
 
 # Initialize paddles
 left_paddle = pygame.Rect(50, HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
@@ -53,11 +54,11 @@ while True:
     if keys[pygame.K_s] and left_paddle.bottom < HEIGHT:
         left_paddle.y += PADDLE_SPEED
 
-    # Handle player input for Player 2
-    if keys[pygame.K_UP] and right_paddle.top > 0:
-        right_paddle.y -= PADDLE_SPEED
-    if keys[pygame.K_DOWN] and right_paddle.bottom < HEIGHT:
-        right_paddle.y += PADDLE_SPEED
+    # Simple AI for Player 2
+    if ball.centery < right_paddle.centery and right_paddle.top > 0:
+        right_paddle.y -= AI_SPEED
+    elif ball.centery > right_paddle.centery and right_paddle.bottom < HEIGHT:
+        right_paddle.y += AI_SPEED
 
     # Move the ball
     ball.x += ball_speed[0]
