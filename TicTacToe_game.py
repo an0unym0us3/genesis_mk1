@@ -9,7 +9,7 @@ pygame.init()
 WIDTH, HEIGHT = 600, 600
 GRID_SIZE = 3
 CELL_SIZE = WIDTH // GRID_SIZE
-FPS = 60
+FPS = 10
 
 # Colors
 BACKGROUND_COLOR = (49, 51, 56)
