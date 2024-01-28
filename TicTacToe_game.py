@@ -142,22 +142,20 @@ while running:
                 if check_win(board, 'X'):
                     print("Player X wins!")
                     running = False
-
-                if is_board_full(board):
+                elif is_board_full(board):
                     print("It's a draw!")
-                    pygame.quit()
                     running = False
 
                 player_turn = 'O'
 
     # Bot's turn
-    else:#if player_turn == 'O':
+    else:
         board[bot_turn(board)] = 'O'
         if check_win(board, 'O'):
             print("Player O wins!")
             running = False
 
-        if is_board_full(board):
+        elif is_board_full(board):
             print("It's a draw!")
             running = False
 
