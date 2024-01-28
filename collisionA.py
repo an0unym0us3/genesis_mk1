@@ -208,20 +208,20 @@ class Player(pg.sprite.Sprite):
     def draw(self):
         pg.draw.rect(display, self.color, self.rect)
     
-    def gun_update(self, keys, gun):
+    def gun_update(self, keys, mouse_event, gun):
         if keys[pg.K_CAPSLOCK]:
             self.shooting = not self.shooting
-        if keys[pg.K_r]:
+        if keys[pg.K_r] or mouse_event['button'] == 3:
             gun.reload()
         if self.shooting:
-            if keys[pg.K_SPACE]:
+            if keys[pg.K_SPACE] or mouse_event['button'] == 1:
                 self.bullet_shot= True
                 gun.shoot()
         gun.update(self.shooting)
     
-    def update(self, keys, map, gun, *objects):
+    def update(self, keys, mouse_event, map, gun, *objects):
         self.movement_update(keys)
-        self.gun_update(keys, gun)
+        self.gun_update(keys, mouse_event, gun)
         self.boundary_update(map)
         self.camouflage=False
         for object in objects:
@@ -273,7 +273,7 @@ class Object(pg.sprite.Sprite):
             mult=1
         else:
             mult = bg_k
-        self.left = top_left[0]* mult
+        self.left = top_left[0] * mult
         self.top = top_left[1] * mult
         self.collide=collide
         self.func = func
@@ -579,13 +579,23 @@ ghosts = [ghost_1, ghost_2, ghost_3]
 
 while game_run:
     for event in pg.event.get():
+        if event.type == pg.MOUSEBUTTONDOWN:
+            mouse_event = event.dict
+        elif event.type == pg.QUIT:
+            game_run = False
+        else:
+            mouse_event = {'pos': (False, False), 'button': False}
+
+    '''
+    for event in pg.event.get():
         if event.type == pg.QUIT:
             game_run = False
-
+    '''
 
     keys = pg.key.get_pressed()
-   
-    player.update(keys, map, gun, *objects.values())
+    player.update(keys, mouse_event, map, gun, *objects.values())
+    # player.update(keys, map, gun, *objects.values())
+
     map.update()
     minimap.update()
     
