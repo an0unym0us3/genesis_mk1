@@ -13,6 +13,7 @@ display = pg.display.set_mode((window_w, window_h))
 pg.display.set_caption('Falschung')
 my_font = pg.font.SysFont('Helvetica', 20)
 ui_font = pg.font.Font('./Media/Fonts/pixeloid_bold.ttf', 50)
+small_ui_font = pg.font.Font('./Media/Fonts/pixeloid_bold.ttf', 25)
 window_c = (window_w//2, window_h//2)
 
 
@@ -519,14 +520,18 @@ class Ghost(Object):
 class UI():
     def __init__(self):
         self.player_health_bar = pg.rect.Rect(25, window_h-50, 250, 25)
-    def ui_blit(self, health, ammo, score):
+    def ui_blit(self, health, ammo, score, games):
         self.player_health_bar.width = 250
         pg.draw.rect(display, (100,100,100), self.player_health_bar)
         self.player_health_bar.width = health/500 * 250
         pg.draw.rect(display, ((health<100) * 255, (health>=100)*255,0), self.player_health_bar)
 
         ammo_display = ui_font.render(f"{ammo[0]}/{ammo[1]}", False, (250, 150, 150), (100, 50, 50))
-        display.blit(ammo_display, (window_w-200, window_h-60))
+        display.blit(ammo_display, (window_w-200, window_h-100))
+
+        minigames_display = small_ui_font.render(f"Minigames: {games}/2", False, (200, 200, 200), (100, 100, 100))
+        display.blit(minigames_display, (window_w-245, window_h-35))
+
 
         blit_coin = pg.transform.scale(coin_img, (75,75))
         coin_display = ui_font.render(str(score), False, (150,100,0))
@@ -534,13 +539,16 @@ class UI():
         display.blit(blit_coin, (window_w-260, 10))
 
 def run_minigame(name):
-
-
-    with open("./data/saved.json", "w") as outfile:
-        json.dump(data, outfile)
-    print(True)
-    exec(f"import {name}")
-    sys.exit()
+    global data
+    print(data)
+    if name not in data["minigames_played"] and data["played_count"]>=0:
+        print(data)
+        with open("./data/saved.json", "w") as outfile:
+            json.dump(data, outfile)
+        print(True)
+        pg.quit()
+        exec(f"import {name}")
+        sys.exit()
 
 data = {}
 with open('./data/saved.json', 'r') as file:
@@ -663,7 +671,8 @@ while game_run:
 
     #player.draw()
     minimap.blit()
-    ui.ui_blit(player.health, gun.ammo, data["score"])
+    ui.ui_blit(player.health, gun.ammo, data["score"], data["played_count"])
+    
     pg.display.flip()
     clock.tick(15)
 

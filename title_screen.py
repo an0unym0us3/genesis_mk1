@@ -1,5 +1,7 @@
 import pygame
 import sys
+import json
+import subprocess
 
 pygame.init()
 
@@ -64,6 +66,10 @@ title_font_size = 60
 title_font = pygame.font.Font(pygame.font.match_font('courier'), title_font_size)
 title_text = "FALSHSTORM"
 
+data = {"score": 0, "played_count": 0, "minigames_played" : []}
+with open("./data/saved.json", "w") as outfile:
+    json.dump(data, outfile)
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -74,7 +80,7 @@ while running:
                     print("Start button clicked!")
                     # You can add functionality for the Start button here
                     pygame.quit()
-                    import collisionA
+                    subprocess.run(['python', 'collisionA.py'])
                     sys.exit()
                 elif exit_button.collidepoint(event.pos):
                     print("Exit button clicked!")
