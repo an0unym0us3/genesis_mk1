@@ -392,14 +392,11 @@ class Gun(pg.sprite.Sprite):
     def reload(self, full=False):
         if full:
            self.ammo = [self.AMMO[0], self.AMMO[1]]
-        elif self.ammo[0] < self.AMMO[0]:
-                if self.ammo[1]<self.AMMO[0]:
-                    if self.ammo[0]+self.ammo[1] > self.AMMO[0]:
-                        self.ammo = [self.AMMO[0], self.ammo[1]+self.ammo[0]-self.AMMO[0]]
-                    elif self.ammo[0] == 0:
+        else:
+            if self.ammo[0]<self.AMMO[0]:
+                if self.ammo[1]< self.AMMO[0]:
+                    if self.ammo[1]>0:
                         self.ammo = [self.ammo[1], 0]
-                    else:
-                        self.ammo = [self.ammo[0] + self.ammo[1], 0]
                 else:
                     self.ammo = [self.AMMO[0], self.ammo[1]-self.AMMO[0]+self.ammo[0]]
         
@@ -517,12 +514,22 @@ class UI():
         display.blit(ammo_display, (window_w-200, window_h-60))
         
         blit_coin = pg.transform.scale(coin_img, (75,75))
-        coin_display = ui_font.render(str(score), False, (250,200,100),(150,100,0))
+        coin_display = ui_font.render(str(score), False, (150,100,0))
         display.blit(coin_display, (window_w-160, 10))
         display.blit(blit_coin, (window_w-260, 10))
     
 def run_minigame(name):
-
+    # game_paused=True
+    # os.system('cmd /c "snake_game.py"')
+    # while game_paused:
+    #     print(True)
+    #     time.sleep(5)
+    #     with open('./data/saved.json', 'r') as file:
+    #         stored_data = json.load(file)
+    #     if "temp" in stored_data.keys():
+    #         data["score"] += stored_data["temp"]["score"]
+    #         game_paused=False
+    #         global_pos = spn
     
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
@@ -544,41 +551,54 @@ clock = pg.time.Clock()
 objects = dict()
 coins = list()
 
+house_bottom = Object([475, 314], [528, 360])
+house_top = Object([170, 170], [228, 217])
+objects["house_top"]=house_top
+objects["house_bottom"]=house_bottom
 
-house_bottom = Object([472, 314], [533, 360])
-house_top = Object([167, 170], [228, 217])
-health = Object([242, 177], [315, 234], name="health")
-mart = Object([322, 191], [404, 249], name="mart")
+trees_1 = Object([207,344], [238, 349])
+trees_2 = Object([625, 312], [652, 319])
+objects["trees_1"] = trees_1
+objects["trees_2"] = trees_2
+
+board = Object([401,322],[414, 325])
+objects["board"] = board
+
+health = Object([243, 180], [315, 228])
+health_door = Object([270, 226], [290, 234], name="health")
+mart = Object([321, 196], [403, 248])
+mart_door = Object([348, 241], [371, 261], name="mart")
+objects["health"] = health
+objects['health_door'] = health_door
+objects["mart"]=mart
+objects['mart_door'] = mart_door
+
 big_house = Object([566, 170],[654, 230])
+objects["big_house"]=big_house
+
 block_1 = Object([400,0], [458,194])
 block_2 = Object([460,86], [587,100])
 block_3 = Object([590,0], [800,187])    
 block_4 = Object([0,134], [165, 165])
-trees_1 = Object([192,313], [235, 349])
-trees_2 = Object([621, 281], [672, 314])
-board = Object([400,320],[412, 327])
-forest_1 = Object([0,200], [120,480], collide=False)
 
-snake_door = Object([478, 361], [496, 365], collide=False, minigame="snake_game")
+forest_1 = Object([0,200], [120,480], collide=False)
+objects["forest_1"] = forest_1
+
+snake_door = Object([478, 358], [497, 361], collide=False, minigame="snake_game")
 pong_door = Object([174, 216], [193, 220], collide=False, minigame="pong_game")
 ttt_door = Object([574, 230], [593, 240], collide=False, minigame="TicTacToe_game")
+objects["snake_door"] = snake_door
+objects["pong_door"] = pong_door
+objects["ttt_door"] = ttt_door
 
-objects["house_top"]=house_top
-objects["house_bottom"]=house_bottom
-objects["health"]=health
+
 objects["block_1"] = block_1
 objects["block_2"] = block_2
 objects["block_3"] = block_3
 objects["block_4"] = block_4
-objects["trees_1"] = trees_1
-objects["trees_2"] = trees_2
-objects["board"] = board
-objects["forest_1"] = forest_1
-objects["mart"]=mart
-objects["big_house"]=big_house
-objects["snake_door"] = snake_door
-objects["pong_door"] = pong_door
-objects["ttt_door"] = ttt_door
+
+
+
 
 a_coin = Coin()
 b_coin = Coin()
