@@ -42,10 +42,19 @@ font = pygame.font.Font(None, 36)
 victory_screen = font.render("Player ONE Wins!", True, WHITE)
 defeat_screen = font.render("Player TWO Wins!", True, WHITE)
 
+def update_coins(score):
+    with open("./data/saved.json", "r") as file:
+        data = json.load(file)
+
+    data["score"] += score
+    data["played_count"] += 1
+
+    with open("./data/saved.json", "w") as outfile:
+        json.dump(data, outfile)
+
 def return_to_main():
     with open("./data/saved.json", "r") as file:
         data = json.load(file)
-    data["score"] += score
     data["played_count"] += 1
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
@@ -118,16 +127,18 @@ while True:
     # Check for victory or defeat
     if left_score == 5:
         screen.blit(victory_screen, (WIDTH // 2 - victory_screen.get_width() // 2, HEIGHT // 2 - victory_screen.get_height() // 2))
-        score=50
+
         pygame.display.flip()
-        pygame.time.delay(2000)  # Delay for 2 seconds before exiting
+        pygame.time.delay(2000)
+        update_coins(5)        # Delay for 2 seconds before exiting
         return_to_main()
 
     elif right_score == 5:
         screen.blit(defeat_screen, (WIDTH // 2 - defeat_screen.get_width() // 2, HEIGHT // 2 - defeat_screen.get_height() // 2))
-        score=-50
+
         pygame.display.flip()
-        pygame.time.delay(2000)  # Delay for 2 seconds before exiting
+        pygame.time.delay(2000)
+        update_coins(-5)# Delay for 2 seconds before exiting
         return_to_main()
 
     # Update the display

@@ -7,6 +7,8 @@ pygame.init()
 pygame.mixer.music.load('TitleMusic.mp3')
 pygame.mixer.music.play(-1)
 
+
+
 # Set the title of the display window
 pygame.display.set_caption("My Pygame Window")
 
