@@ -1,8 +1,9 @@
 import pygame as pg
-import subprocess
+import subprocess, sys
 import random
 import os, json
 import math
+import time
 
 pg.init()
 
@@ -228,8 +229,8 @@ class Player(pg.sprite.Sprite):
             if object.collide:
                 self.collide_update(object)
             elif self.rect.colliderect(object.rect):
-                if object.func:
-                    object.func()
+                if object.minigame:
+                    run_minigame(object.minigame)
                 else:
                     self.camouflage=True
         
@@ -267,7 +268,7 @@ class Minimap(pg.sprite.Sprite):
         display.blit(self.player_image, self.player_blit_pos)
 
 class Object(pg.sprite.Sprite):
-    def __init__(self, top_left, bottom_right, name= None, collide=True, func=None, no_mult=False):   
+    def __init__(self, top_left, bottom_right, name= None, collide=True, minigame=None, no_mult=False):   
         pg.sprite.Sprite.__init__(self)
         if no_mult:
             mult=1
@@ -276,7 +277,7 @@ class Object(pg.sprite.Sprite):
         self.left = top_left[0] * mult
         self.top = top_left[1] * mult
         self.collide=collide
-        self.func = func
+        self.minigame = minigame
         self.w = (bottom_right[0] - top_left[0])*mult
         self.h = (bottom_right[1] - top_left[1])*mult
         self.rect = pg.Rect(self.top, self.left, self.w, self.h)
@@ -512,9 +513,18 @@ class UI():
         ammo_display = ammo_font.render(f"{ammo[0]}/{ammo[1]}", False, (50, 70, 50))
         display.blit(ammo_display, (window_w-200, window_h-60))
     
-def snake_game():
-    subprocess.run(snake_game)
-
+def run_minigame(name):
+    game_paused=True
+    os.system('cmd /c "snake_game.py"')
+    while game_paused:
+        print(True)
+        time.sleep(5)
+        with open('./data/saved.json', 'r') as file:
+            stored_data = json.load(file)
+        if "temp" in stored_data.keys():
+            data["score"] += stored_data["temp"]["score"]
+            game_paused=False
+            global_pos = spn
 data = {}
 with open('./data/saved.json', 'r') as file:
     data = json.load(file)
@@ -546,7 +556,7 @@ trees_2 = Object([621, 281], [672, 314])
 board = Object([400,320],[412, 327])
 forest_1 = Object([0,200], [120,480], collide=False)
 
-door_1 = Object([478, 361], [496, 365], collide=False, func=snake_game)
+door_1 = Object([478, 361], [496, 365], collide=False, minigame='snake_game.py')
 
 objects["house_top"]=house_top
 objects["house_bottom"]=house_bottom
