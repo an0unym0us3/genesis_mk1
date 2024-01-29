@@ -4,6 +4,7 @@ import random
 import os, json
 import math
 import time
+import importlib
 
 pg.init()
 
@@ -24,6 +25,7 @@ attacked= False
 true_bg_img = pg.image.load('./Media/images/background/bg.png')
 transp_bg_img = pg.image.load('./Media/images/background/bg_trans.png')
 attacked_bg_img = pg.image.load('./Media/images/background/bg_attacked.jpg')
+low_health_bg_img = pg.image.load('./Media/images/background/bg_low_health.jpg')
 player_img = pg.image.load('./Media/images/player/normal/fplayer.png')
 coin_img = pg.image.load('./Media/images/coin.png')
 gun_img = pg.image.load('./Media/images/weapons/gun_green.png')
@@ -41,7 +43,7 @@ spn = (2450, 2040)
 global_pos = pg.Vector2(spn[0],spn[1])
 
 class Map(pg.sprite.Sprite):
-    def __init__(self, image, transp_image, attacked_image):
+    def __init__(self, image, transp_image, attacked_image, low_health_image):
         global attacked
         pg.sprite.Sprite.__init__(self)
         image = pg.transform.scale(image, (image.get_width()*bg_k, image.get_height()*bg_k))
@@ -49,9 +51,12 @@ class Map(pg.sprite.Sprite):
         transp_image.set_alpha(transp_layer_opacity)
         attacked_image = pg.transform.scale(attacked_image, (window_w, window_h))
         attacked_image.set_alpha(transp_layer_opacity)
+        low_health_image = pg.transform.scale(low_health_image, (window_w, window_h))
+        low_health_image.set_alpha(transp_layer_opacity)
         self.image = image
         self.transp_image = transp_image
         self.attacked_image = attacked_image
+        self.low_health_image = low_health_image
         self.rect = self.image.get_rect()
         self.w, self.h = image.get_width(), image.get_height()
         self.blit_pos = pg.Vector2(global_pos)
@@ -84,7 +89,8 @@ class Map(pg.sprite.Sprite):
         display.blit(self.transp_image, self.blit_pos)
     def attacked_blit(self):
         display.blit(self.attacked_image, (0,0))
-        
+    def low_health_blit(self):
+        display.blit(self.low_health_image, (0,0))
 
 class Player(pg.sprite.Sprite):
     def __init__(self, image):
@@ -172,6 +178,8 @@ class Player(pg.sprite.Sprite):
         
         if self.rect.colliderect(object.rect):
             if object.name == "health":
+                if self.health<500:
+                    data["score"]-=10
                 self.health =500
             if object.name == "mart":
                 gun.reload(full=True)
@@ -391,7 +399,9 @@ class Gun(pg.sprite.Sprite):
             
     def reload(self, full=False):
         if full:
-           self.ammo = [self.AMMO[0], self.AMMO[1]]
+            if self.ammo[0] + self.ammo[1] < self.AMMO[0] + self.AMMO[1]:
+                data["score"]-=15
+            self.ammo = [self.AMMO[0], self.AMMO[1]]
         elif self.ammo[0] < self.AMMO[0]:
                 if self.ammo[1]<self.AMMO[0]:
                     if self.ammo[0]+self.ammo[1] > self.AMMO[0]:
@@ -511,7 +521,7 @@ class UI():
         self.player_health_bar.width = 250
         pg.draw.rect(display, (100,100,100), self.player_health_bar)
         self.player_health_bar.width = health/500 * 250
-        pg.draw.rect(display, ((health<=100) * 255, (health>100)*255,0), self.player_health_bar)
+        pg.draw.rect(display, ((health<100) * 255, (health>=100)*255,0), self.player_health_bar)
         
         ammo_display = ui_font.render(f"{ammo[0]}/{ammo[1]}", False, (250, 150, 150), (100, 50, 50))
         display.blit(ammo_display, (window_w-200, window_h-60))
@@ -523,10 +533,10 @@ class UI():
     
 def run_minigame(name):
 
-    
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
-    exec(f"from Minigames import {name}")
+    print(True)
+    exec(f"import {name}")
     sys.exit()
     
 data = {}
@@ -535,7 +545,7 @@ with open('./data/saved.json', 'r') as file:
 
           
 player = Player(image=player_img)
-map = Map(image=true_bg_img, transp_image=transp_bg_img, attacked_image =attacked_bg_img)
+map = Map(image=true_bg_img, transp_image=transp_bg_img, attacked_image =attacked_bg_img, low_health_image=low_health_bg_img)
 minimap = Minimap(image=true_bg_img, player_image = player_img)
 gun = Gun(image = gun_img, player=player)
 game_run = True
@@ -593,6 +603,7 @@ ghost_2 = Ghost()
 ghost_3 = Ghost()
 ghosts = [ghost_1, ghost_2, ghost_3]
 
+
 while game_run:
     for event in pg.event.get():
         if event.type == pg.MOUSEBUTTONDOWN:
@@ -631,6 +642,8 @@ while game_run:
     display.blit(text_surface, (0, window_h-24))
     player.blit()
     map.transp_blit()
+    if player.health<100:
+        map.low_health_blit() 
     if attacked:
         map.attacked_blit()
     #player.draw()

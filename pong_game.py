@@ -1,6 +1,7 @@
 import pygame
 import sys
 import json
+import importlib
 
 # Initialize Pygame
 pygame.init()
@@ -41,19 +42,25 @@ font = pygame.font.Font(None, 36)
 victory_screen = font.render("Player ONE Wins!", True, WHITE)
 defeat_screen = font.render("Player TWO Wins!", True, WHITE)
 
-def return_to_main(win):
+def return_to_main():
     with open("./data/saved.json", "r") as file:
         data = json.load(file)
-    data["score"] += win*50
+    data["score"] += score
+    data["played_count"] += 1
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
-    import collisionA
+    if not data["played_count"]:
+        import collisionA
+    else:
+        import collisionA
+        # importlib.reload(collisionA)
+    sys.exit()
 
 # Game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            return_to_main(0)
+            return_to_main()
             sys.exit()
 
     # Handle player input for Player 1
@@ -111,17 +118,17 @@ while True:
     # Check for victory or defeat
     if left_score == 5:
         screen.blit(victory_screen, (WIDTH // 2 - victory_screen.get_width() // 2, HEIGHT // 2 - victory_screen.get_height() // 2))
+        score=50
         pygame.display.flip()
         pygame.time.delay(2000)  # Delay for 2 seconds before exiting
-        return_to_main(win=1)
-        sys.exit()
+        return_to_main()
 
     elif right_score == 5:
         screen.blit(defeat_screen, (WIDTH // 2 - defeat_screen.get_width() // 2, HEIGHT // 2 - defeat_screen.get_height() // 2))
+        score=-50
         pygame.display.flip()
         pygame.time.delay(2000)  # Delay for 2 seconds before exiting
-        return_to_main(win=-1)
-        sys.exit()
+        return_to_main()
 
     # Update the display
     pygame.display.flip()
