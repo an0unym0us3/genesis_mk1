@@ -27,26 +27,31 @@ snake_speed = 15
 clock = pygame.time.Clock()
 
 SA = pygame.mixer.Sound("Sneaky Adventure.mp3")
+chipi=pygame.mixer.Sound("Chipi.mp3")
 
 # Score Display
 def your_score(score):
     value = font_style.render("Your Score: " + str(score), True, white)
     dis.blit(value, [0, 0])
 
+
 # Draw the snake
 def our_snake(snake_block, snake_list):
     for x in snake_list:
         pygame.draw.rect(dis, green, [x[0], x[1], snake_block, snake_block])
+
 
 # Display Message
 def message(msg, color):
     mesg = font_style.render(msg, True, color)
     dis.blit(mesg, [dis_width / 6, dis_height / 3])
 
+
 # Game Loop
 def gameLoop():
     game_over = False
     game_close = False
+    game_win = False
 
     x1, y1 = dis_width / 2, dis_height / 2
     x1_change, y1_change = 0, 0
@@ -80,6 +85,22 @@ def gameLoop():
                     if event.key == pygame.K_c:
                         gameLoop()
 
+        while game_win:
+            pygame.mixer.Sound.play(chipi)
+            pygame.mixer.music.stop()
+            dis.fill(blue)
+            message("You WIN! Press Q-Quit or C-Play Again", green)
+            your_score(length_of_snake-1)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        pygame.quit()
+                        quit()
+                    if event.key == pygame.K_c:
+                        gameLoop()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -100,6 +121,7 @@ def gameLoop():
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
 
+
         x1 += x1_change
         y1 += y1_change
         dis.fill(black)
@@ -117,6 +139,9 @@ def gameLoop():
             if x == snake_head:
                 game_close = True
 
+        if length_of_snake==11:
+            game_win=True
+
         our_snake(block_size, snake_list)
         your_score(length_of_snake - 1)
         pygame.display.update()
@@ -128,8 +153,12 @@ def gameLoop():
 
         clock.tick(snake_speed)
 
+
+
+
     pygame.quit()
     quit()
+
 
 # Start the game
 gameLoop()
