@@ -527,6 +527,7 @@ def run_minigame(name):
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
     exec(f"from Minigames import {name}")
+    sys.exit()
     
 data = {}
 with open('./data/saved.json', 'r') as file:

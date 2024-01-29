@@ -2,6 +2,7 @@ import pygame
 import random
 import time
 import json
+import sys
 
 pygame.init()
 
@@ -30,6 +31,7 @@ def return_to_main():
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
     import collisionA
+    sys.exit()
 
 # draw the grid
 def draw_grid():
