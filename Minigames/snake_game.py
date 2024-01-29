@@ -83,6 +83,7 @@ def return_to_main():
         with open("./data/saved.json", "w") as outfile:
                 json.dump(data, outfile)
         import collisionA
+        sys.exit()
 
 # displaying Score function
 def show_score(choice, color, font, size):

@@ -522,17 +522,7 @@ class UI():
         display.blit(blit_coin, (window_w-260, 10))
     
 def run_minigame(name):
-    # game_paused=True
-    # os.system('cmd /c "snake_game.py"')
-    # while game_paused:
-    #     print(True)
-    #     time.sleep(5)
-    #     with open('./data/saved.json', 'r') as file:
-    #         stored_data = json.load(file)
-    #     if "temp" in stored_data.keys():
-    #         data["score"] += stored_data["temp"]["score"]
-    #         game_paused=False
-    #         global_pos = spn
+
     
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)

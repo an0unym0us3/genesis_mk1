@@ -1,6 +1,7 @@
 import pygame
 import random
 import time
+import json
 
 pygame.init()
 
@@ -23,6 +24,11 @@ font = pygame.font.Font(None, 36)
 
 
 def return_to_main():
+    with open("./data/saved.json", "r") as file:
+        data = json.load(file)
+    data["score"] += score
+    with open("./data/saved.json", "w") as outfile:
+        json.dump(data, outfile)
     import collisionA
 
 # draw the grid
@@ -183,6 +189,7 @@ def run_game(score):
 
         pygame.display.flip()
         clock.tick(10)
+    return 0
 
 score = 0
 for i in range(3):
