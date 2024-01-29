@@ -3,7 +3,6 @@ import random
 import time
 import json
 import sys
-import importlib
 
 pygame.init()
 
@@ -33,10 +32,7 @@ def return_to_main():
     data["minigames_played"].append('ttt_game')
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
-    if not data["played_count"]:
-        import collisionA
-    else:
-        import collisionA
+    import collisionA
         # importlib.reload(collisionA)
     sys.exit()
 

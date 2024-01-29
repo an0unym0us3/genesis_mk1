@@ -1,7 +1,6 @@
 import pygame
 import sys
 import json
-import importlib
 
 # Initialize Pygame
 pygame.init()
@@ -50,11 +49,7 @@ def return_to_main():
     data["minigames_played"].append('pong_game')
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
-    if not data["played_count"]:
-        import collisionA
-    else:
-        import collisionA
-        # importlib.reload(collisionA)
+    import collisionA
     sys.exit()
 
 # Game loop

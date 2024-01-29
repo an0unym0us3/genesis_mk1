@@ -4,7 +4,7 @@ import time
 import random
 import json
 import sys
-import importlib
+
 
 snake_speed = 15
 
@@ -85,10 +85,7 @@ def return_to_main():
         data["minigames_played"].append('snake_game')
         with open("./data/saved.json", "w") as outfile:
                 json.dump(data, outfile)
-        if not data["played_count"]:
-                import collisionA
-        else:
-                import collisionA
+        import collisionA
                 # importlib.reload(collisionA)
         sys.exit()
 
