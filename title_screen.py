@@ -71,6 +71,9 @@ while running:
                 if start_button.collidepoint(event.pos):
                     print("Start button clicked!")
                     # You can add functionality for the Start button here
+                    pygame.quit()
+                    import collisionA
+                    sys.exit()
                 elif exit_button.collidepoint(event.pos):
                     print("Exit button clicked!")
                     running = False  # Exit the program
