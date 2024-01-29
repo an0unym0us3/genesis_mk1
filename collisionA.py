@@ -11,7 +11,7 @@ window_w, window_h = 1280, 720
 display = pg.display.set_mode((window_w, window_h))
 pg.display.set_caption('Falschung')
 my_font = pg.font.SysFont('Helvetica', 20)
-ammo_font = pg.font.Font('./Media/Fonts/pixeloid_bold.ttf', 50)
+ui_font = pg.font.Font('./Media/Fonts/pixeloid_bold.ttf', 50)
 window_c = (window_w//2, window_h//2)
 
 
@@ -310,7 +310,7 @@ class Coin(Object):
             super().update()
             self.blit()
         else:
-            data["coins"]+=1
+            data["score"]+=1
             self.__init__()
         
     def blit(self):
@@ -490,7 +490,7 @@ class Ghost(Object):
             super().update()
             self.blit()
         else:
-            data["coins"]+=10
+            data["score"]+=10
             self.__init__()
     
         
@@ -501,17 +501,21 @@ class Ghost(Object):
         pg.draw.rect(display, (100,100,100),self.health_bar)
 
 class UI():
-    def __init__(self, health, ammo):
+    def __init__(self):
         self.player_health_bar = pg.rect.Rect(25, window_h-50, 250, 25)
-        self.ammo = ammo
-    def ui_blit(self, health, ammo):
+    def ui_blit(self, health, ammo, score):
         self.player_health_bar.width = 250
         pg.draw.rect(display, (100,100,100), self.player_health_bar)
         self.player_health_bar.width = health/500 * 250
         pg.draw.rect(display, ((health<=100) * 255, (health>100)*255,0), self.player_health_bar)
         
-        ammo_display = ammo_font.render(f"{ammo[0]}/{ammo[1]}", False, (50, 70, 50))
+        ammo_display = ui_font.render(f"{ammo[0]}/{ammo[1]}", False, (250, 150, 150), (100, 50, 50))
         display.blit(ammo_display, (window_w-200, window_h-60))
+        
+        blit_coin = pg.transform.scale(coin_img, (50,50))
+        coin_display = ui_font.render(str(score), False, (0,0,0))
+        display.blit(coin_display, (window_w-200, 0))
+        display.blit(blit_coin, (window_w-50, 0))
     
 def run_minigame(name):
     game_paused=True
@@ -535,7 +539,7 @@ map = Map(image=true_bg_img, transp_image=transp_bg_img, attacked_image =attacke
 minimap = Minimap(image=true_bg_img, player_image = player_img)
 gun = Gun(image = gun_img, player=player)
 game_run = True
-ui = UI(player.health, gun.ammo)
+ui = UI()
 clock = pg.time.Clock()
 
 objects = dict()
@@ -629,7 +633,7 @@ while game_run:
         map.attacked_blit()
     #player.draw()
     minimap.blit()
-    ui.ui_blit(player.health, gun.ammo)
+    ui.ui_blit(player.health, gun.ammo, data["score"])
     pg.display.flip()
     clock.tick(15)
 
