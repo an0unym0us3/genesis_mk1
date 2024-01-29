@@ -26,8 +26,8 @@ font_style = pygame.font.SysFont(None, 50)
 snake_speed = 15
 clock = pygame.time.Clock()
 
-SA = pygame.mixer.Sound("Sneaky Adventure.mp3")
-chipi=pygame.mixer.Sound("Chipi.mp3")
+SA = pygame.mixer.Sound("./Media/music/Sneaky Adventure.mp3")
+chipi=pygame.mixer.Sound("./Media/music/vChipi.mp3")
 
 # Score Display
 def your_score(score):
@@ -62,7 +62,7 @@ def gameLoop():
     foodx = round(random.randrange(0, dis_width - block_size) / 20.0) * 20.0
     foody = round(random.randrange(0, dis_height - block_size) / 20.0) * 20.0
 
-    pygame.mixer.music.load('PewPew.mp3')
+    pygame.mixer.music.load('./Media/music/PewPew.mp3')
     pygame.mixer.music.play(-1)
 
     while not game_over:
