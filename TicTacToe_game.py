@@ -58,7 +58,7 @@ def check_win(board, symbol):
 
 # Function to check if the board is full
 def is_board_full(board):
-    return all(cell != ' ' for cell in board)
+    return all(board)
 
 # Function to display text
 def draw_text(text, font, color, x, y):
@@ -68,42 +68,45 @@ def draw_text(text, font, color, x, y):
 
 # Function for bot's turn
 def bot_turn(board):
-    # Simulate "thinking" by adding a delay
+    # bot supposedly thinks
     time.sleep(1)
 
+    if board[4] == '':
+        return 4
+    
     defend_moves = []
     for i in range(3):
         this_row = board[i * 3: i * 3 + 3]
-        if len(set(this_row)) == 2 and this_row.count(' ') == 1:
+        if len(set(this_row)) == 2 and this_row.count('') == 1:
             if 'X' in this_row:
-                return this_row.index(' ') + 3 * i
+                return this_row.index('') + 3 * i
             else:
-                defend_moves.append(this_row.index(' ') + 3 * i)
+                defend_moves.append(this_row.index('') + 3 * i)
 
         this_col = [board[0 + i], board[3 + i], board[6 + i]]
-        if len(set(this_col)) == 2 and this_col.count(' ') == 1:
+        if len(set(this_col)) == 2 and this_col.count('') == 1:
             if 'X' in this_col:
-                return this_col.index(' ') * 3 + i
+                return this_col.index('') * 3 + i
             else:
-                defend_moves.append(this_col.index(' ') * 3 + i)
+                defend_moves.append(this_col.index('') * 3 + i)
 
     lr_diag = [board[0], board[4], board[8]]
-    if len(set(lr_diag)) == 2 and lr_diag.count(' ') == 1:
+    if len(set(lr_diag)) == 2 and lr_diag.count('') == 1:
         if 'X' in lr_diag:
-            return lr_diag.index(' ') * 4
+            return lr_diag.index('') * 4
         else:
-            defend_moves.append(lr_diag.index(' ') * 4)
+            defend_moves.append(lr_diag.index('') * 4)
 
     rl_diag = [board[2], board[4], board[6]]
-    if len(set(rl_diag)) == 2 and rl_diag.count(' ') == 1:
+    if len(set(rl_diag)) == 2 and rl_diag.count('') == 1:
         if 'X' in rl_diag:
-            return 2 + rl_diag.index(' ') * 2
+            return 2 + rl_diag.index('') * 2
         else:
-            defend_moves.append(2 + rl_diag.index(' ') * 2)
+            defend_moves.append(2 + rl_diag.index('') * 2)
 
     if not defend_moves:
         # Find an empty spot and make a move
-        empty_spots = [i for i in range(GRID_SIZE * GRID_SIZE) if board[i] == ' ']
+        empty_spots = [i for i in range(GRID_SIZE * GRID_SIZE) if board[i] == '']
         if empty_spots:
             return random.choice(empty_spots)
     elif len(defend_moves) == 1:
@@ -116,7 +119,7 @@ def bot_turn(board):
 
 
 # Main game loop
-board = [' ' for _ in range(GRID_SIZE * GRID_SIZE)]
+board = ['' for _ in range(GRID_SIZE * GRID_SIZE)]
 player_turn = 'X'
 
 # Fonts
@@ -136,7 +139,7 @@ while running:
         if mouse_event:
             clicked_index = (mouse_event['pos'][1] // CELL_SIZE) * GRID_SIZE + mouse_event['pos'][0] // CELL_SIZE
 
-            if board[clicked_index] == ' ':
+            if board[clicked_index] == '':
                 board[clicked_index] = 'X'
                 if check_win(board, 'X'):
                     print("Player X wins!")
