@@ -3,7 +3,7 @@ import pygame
 import time
 import random
 import json
-
+import sys
 
 snake_speed = 15
 
@@ -79,6 +79,7 @@ text = smallfont.render('quit' , True , color)
 def return_to_main():
         with open("./data/saved.json", "r") as file:
                 data = json.load(file)
+        data["score"] += score
         with open("./data/saved.json", "w") as outfile:
                 json.dump(data, outfile)
         import collisionA
@@ -130,7 +131,7 @@ def game_over():
 		
 			if ev.type == pygame.QUIT: 
                                 return_to_main()
-                                pygame.quit()
+                                sys.exit()
 			
                         #checks if a mouse is clicked 
 			if ev.type == pygame.MOUSEBUTTONDOWN: 
@@ -138,7 +139,7 @@ def game_over():
                                 # button the game is terminated 
 				if width/2 <= mouse[0] <= width/2+140 and height/2 <= mouse[1] <= height/2+40: 
                                         return_to_main()
-                                        pygame.quit()
+                                        sys.exit()
 
  
 	
@@ -176,7 +177,7 @@ while True:
                                change_to = 'RIGHT'
                 if event.type == pygame.QUIT:
                         return_to_main()
-                        pygame.quit()
+                        sys.exit()
         # If two keys pressed simultaneously
         # we don't want snake to move into two 
         # directions simultaneously

@@ -286,6 +286,7 @@ class Object(pg.sprite.Sprite):
     
     def update(self):
         global player
+        pg.draw.rect(display, (255,255,255),object.rect)
         self.rect.x, self.rect.y = player.blit_pos.x+(self.left-global_pos[0]) + player.w/2, player.blit_pos.y+(self.top-global_pos[1])+player.h/2
         #pg.draw.rect(display, self.color, self.rect)
 
@@ -567,7 +568,7 @@ forest_1 = Object([0,200], [120,480], collide=False)
 
 snake_door = Object([478, 361], [496, 365], collide=False, minigame="snake_game")
 pong_door = Object([174, 216], [193, 220], collide=False, minigame="pong_game")
-ttt_door = Object([574, 216], [593, 220], collide=False, minigame="TicTacToe_game")
+ttt_door = Object([574, 230], [593, 240], collide=False, minigame="TicTacToe_game")
 
 objects["house_top"]=house_top
 objects["house_bottom"]=house_bottom

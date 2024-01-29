@@ -1,5 +1,6 @@
 import pygame
 import sys
+import json
 
 # Initialize Pygame
 pygame.init()
@@ -40,14 +41,20 @@ font = pygame.font.Font(None, 36)
 victory_screen = font.render("Player ONE Wins!", True, WHITE)
 defeat_screen = font.render("Player TWO Wins!", True, WHITE)
 
-def return_to_main():
+def return_to_main(win):
+    with open("./data/saved.json", "r") as file:
+        data = json.load(file)
+    data["score"] += win*50
+    with open("./data/saved.json", "w") as outfile:
+        json.dump(data, outfile)
     import collisionA
 
 # Game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            return_to_main()
+            return_to_main(0)
+            sys.exit()
 
     # Handle player input for Player 1
     keys = pygame.key.get_pressed()
@@ -106,14 +113,14 @@ while True:
         screen.blit(victory_screen, (WIDTH // 2 - victory_screen.get_width() // 2, HEIGHT // 2 - victory_screen.get_height() // 2))
         pygame.display.flip()
         pygame.time.delay(2000)  # Delay for 2 seconds before exiting
-        return_to_main()
+        return_to_main(win=1)
         sys.exit()
 
     elif right_score == 5:
         screen.blit(defeat_screen, (WIDTH // 2 - defeat_screen.get_width() // 2, HEIGHT // 2 - defeat_screen.get_height() // 2))
         pygame.display.flip()
         pygame.time.delay(2000)  # Delay for 2 seconds before exiting
-        return_to_main()
+        return_to_main(win=-1)
         sys.exit()
 
     # Update the display

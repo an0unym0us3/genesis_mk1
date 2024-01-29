@@ -1,6 +1,7 @@
 import pygame
 import random
 import time
+import json
 
 pygame.init()
 
@@ -23,6 +24,11 @@ font = pygame.font.Font(None, 36)
 
 
 def return_to_main():
+    with open("./data/saved.json", "r") as file:
+        data = json.load(file)
+    data["score"] += win*50
+    with open("./data/saved.json", "w") as outfile:
+        json.dump(data, outfile)
     import collisionA
 
 # draw the grid
@@ -142,9 +148,11 @@ while running:
             if board[clicked_index] == '':
                 board[clicked_index] = 'X'
                 if check_win(board, 'X'):
+                    win=1
                     print("Player X wins!")
                     running = False
                 elif check_full(board):
+                    win=0
                     print("It's a draw!")
                     running = False
 
@@ -154,10 +162,12 @@ while running:
     else:
         board[do_play(board)] = 'O'
         if check_win(board, 'O'):
+            win=-1
             print("Player O wins!")
             running = False
 
         elif check_full(board):
+            win=0
             print("It's a draw!")
             running = False
 
@@ -178,5 +188,6 @@ while running:
     pygame.display.flip()
     clock.tick(10)
 
+win=0
 return_to_main()
 quit()
