@@ -1,4 +1,6 @@
 import pygame
+import json
+
 pygame.init()
 
 screen_w, screen_h = 1280, 720
@@ -6,6 +8,14 @@ screen = pygame.display.set_mode((screen_w, screen_h))
 # width, height
 default_button_size = (280, 100)
 
+data = {}
+with open('./data/saved.json', 'r') as file:
+    data = json.load(file)
+data["played_count"] = 0
+data["minigames_played"] = []
+with open("./data/saved.json", "w") as outfile:
+    json.dump(data, outfile)
+    
 class Button:
     def __init__(self, position=(0, 0), button_size=default_button_size, button_color=(255, 0 , 0), font_name='courier', font_size=36, font_text='-default-', font_color=(0, 0, 255)):
         # positon[0], positon[1], button_size[1], button_size[1]

@@ -1,9 +1,6 @@
 import pygame
 import random
 import time
-import json
-import sys
-import importlib
 
 pygame.init()
 
@@ -26,18 +23,8 @@ font = pygame.font.Font(None, 36)
 
 
 def return_to_main():
-    with open("./data/saved.json", "r") as file:
-        data = json.load(file)
-    data["score"] += score
-    data["played_count"] += 1
-    with open("./data/saved.json", "w") as outfile:
-        json.dump(data, outfile)
-    if not data["played_count"]:
-        import collisionA
-    else:
-        import collisionA
-        # importlib.reload(collisionA)
-    sys.exit()
+    import collisionA
+    quit()
 
 # draw the grid
 def draw_grid():
@@ -130,12 +117,12 @@ def do_play(board):
     else:
         print('I withdraw... You win!')
         print('Game end!')
-        quit()
+        return_to_main()
 
 
 
 # Main game loop
-def run_game(score):
+def run_game(score, this_game, total_games):
     board = ['' for _ in range(side_cell * side_cell)]
     player_turn = 'X'
 
@@ -194,15 +181,16 @@ def run_game(score):
 
         draw_text(f"Turn: {player_turn}", font, font_color, screen_w // 2, screen_h - 20)
         draw_text(f"Score: {score}", font, font_color, screen_w // 2, 20)
+        draw_text(f"Game: {this_game}/{total_games}", font, font_color, 100, 20)
+
 
         pygame.display.flip()
         clock.tick(10)
-    return 0
 
 score = 0
-for i in range(3):
-    score += run_game(score)
+games = 3
+for i in range(games):
+    score += run_game(score, i, games)
     print(score)
 
 return_to_main()
-quit()

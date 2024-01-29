@@ -4,7 +4,7 @@ import sys
 pygame.init()
 
 #Music for title screen
-pygame.mixer.music.load('TitleMusic.mp3')
+pygame.mixer.music.load('./Media/music/TitleMusic.mp3')
 pygame.mixer.music.play(-1)
 
 
@@ -73,6 +73,9 @@ while running:
                 if start_button.collidepoint(event.pos):
                     print("Start button clicked!")
                     # You can add functionality for the Start button here
+                    pygame.quit()
+                    import collisionA
+                    sys.exit()
                 elif exit_button.collidepoint(event.pos):
                     print("Exit button clicked!")
                     running = False  # Exit the program

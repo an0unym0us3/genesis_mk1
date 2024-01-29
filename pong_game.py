@@ -1,7 +1,6 @@
 import pygame
 import sys
 import json
-import importlib
 
 # Initialize Pygame
 pygame.init()
@@ -56,19 +55,17 @@ def return_to_main():
     with open("./data/saved.json", "r") as file:
         data = json.load(file)
     data["played_count"] += 1
+    data["minigames_played"].append('pong_game')
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
-    if not data["played_count"]:
-        import collisionA
-    else:
-        import collisionA
-        # importlib.reload(collisionA)
+    import collisionA
     sys.exit()
 
 # Game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            score=0
             return_to_main()
             sys.exit()
 
