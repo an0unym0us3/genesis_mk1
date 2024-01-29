@@ -45,8 +45,8 @@ def draw_symbol(index, symbol):
 def check_win(board, symbol):
     # Check rows and columns
     for i in range(GRID_SIZE):
-        if all(board[i * GRID_SIZE + j] == symbol for j in range(GRID_SIZE)) or all(
-                board[j * GRID_SIZE + i] == symbol for j in range(GRID_SIZE)):
+        row_start = i * GRID_SIZE
+        if set(board[row_start: row_start + GRID_SIZE]) == set(symbol) or set([board[0 + i], board[3 + i], board[6 + i]]) == set(symbol):
             return True
 
     # Check diagonals
@@ -134,7 +134,6 @@ while running:
     # Human player's turn
     if player_turn == 'X':
         if mouse_event:
-            mouseX, mouseY = pygame.mouse.get_pos()
             clicked_index = (mouse_event['pos'][1] // CELL_SIZE) * GRID_SIZE + mouse_event['pos'][0] // CELL_SIZE
 
             if board[clicked_index] == ' ':
