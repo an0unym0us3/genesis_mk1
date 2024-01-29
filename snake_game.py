@@ -82,6 +82,7 @@ def return_to_main():
                 data = json.load(file)
         data["score"] += score
         data["played_count"] += 1
+        data["minigames_played"].append('snake_game')
         with open("./data/saved.json", "w") as outfile:
                 json.dump(data, outfile)
         if not data["played_count"]:
