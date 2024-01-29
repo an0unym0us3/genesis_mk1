@@ -512,23 +512,28 @@ class UI():
         ammo_display = ui_font.render(f"{ammo[0]}/{ammo[1]}", False, (250, 150, 150), (100, 50, 50))
         display.blit(ammo_display, (window_w-200, window_h-60))
         
-        blit_coin = pg.transform.scale(coin_img, (50,50))
-        coin_display = ui_font.render(str(score), False, (0,0,0))
-        display.blit(coin_display, (window_w-200, 0))
-        display.blit(blit_coin, (window_w-50, 0))
+        blit_coin = pg.transform.scale(coin_img, (75,75))
+        coin_display = ui_font.render(str(score), False, (150,100,0))
+        display.blit(coin_display, (window_w-160, 10))
+        display.blit(blit_coin, (window_w-260, 10))
     
 def run_minigame(name):
-    game_paused=True
-    os.system('cmd /c "snake_game.py"')
-    while game_paused:
-        print(True)
-        time.sleep(5)
-        with open('./data/saved.json', 'r') as file:
-            stored_data = json.load(file)
-        if "temp" in stored_data.keys():
-            data["score"] += stored_data["temp"]["score"]
-            game_paused=False
-            global_pos = spn
+    # game_paused=True
+    # os.system('cmd /c "snake_game.py"')
+    # while game_paused:
+    #     print(True)
+    #     time.sleep(5)
+    #     with open('./data/saved.json', 'r') as file:
+    #         stored_data = json.load(file)
+    #     if "temp" in stored_data.keys():
+    #         data["score"] += stored_data["temp"]["score"]
+    #         game_paused=False
+    #         global_pos = spn
+    
+    with open("./data/saved.json", "w") as outfile:
+        json.dump(data, outfile)
+    exec(f"from Minigames import {name}")
+    
 data = {}
 with open('./data/saved.json', 'r') as file:
     data = json.load(file)
@@ -560,7 +565,9 @@ trees_2 = Object([621, 281], [672, 314])
 board = Object([400,320],[412, 327])
 forest_1 = Object([0,200], [120,480], collide=False)
 
-door_1 = Object([478, 361], [496, 365], collide=False, minigame='snake_game.py')
+snake_door = Object([478, 361], [496, 365], collide=False, minigame="snake_game")
+pong_door = Object([174, 216], [193, 220], collide=False, minigame="pong_game")
+ttt_door = Object([574, 216], [593, 220], collide=False, minigame="TicTacToe_game")
 
 objects["house_top"]=house_top
 objects["house_bottom"]=house_bottom
@@ -574,10 +581,10 @@ objects["trees_2"] = trees_2
 objects["board"] = board
 objects["forest_1"] = forest_1
 objects["mart"]=mart
-
 objects["big_house"]=big_house
-objects["door_1"] = door_1
-
+objects["snake_door"] = snake_door
+objects["pong_door"] = pong_door
+objects["ttt_door"] = ttt_door
 
 a_coin = Coin()
 b_coin = Coin()

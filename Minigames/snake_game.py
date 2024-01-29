@@ -2,7 +2,7 @@
 import pygame
 import time
 import random
-
+import json
 
 
 snake_speed = 15
@@ -76,6 +76,13 @@ smallfont = pygame.font.SysFont('Corbel',35)
 # this font 
 text = smallfont.render('quit' , True , color)
 
+def return_to_main():
+        with open("./data/saved.json", "r") as file:
+                data = json.load(file)
+        with open("./data/saved.json", "w") as outfile:
+                json.dump(data, outfile)
+        import collisionA
+
 # displaying Score function
 def show_score(choice, color, font, size):
 
@@ -122,15 +129,16 @@ def game_over():
 		for ev in pygame.event.get(): 
 		
 			if ev.type == pygame.QUIT: 
-				pygame.quit() 
+                                return_to_main()
+                                pygame.quit()
 			
                         #checks if a mouse is clicked 
 			if ev.type == pygame.MOUSEBUTTONDOWN: 
-			
                                 #if the mouse is clicked on the 
                                 # button the game is terminated 
 				if width/2 <= mouse[0] <= width/2+140 and height/2 <= mouse[1] <= height/2+40: 
-					pygame.quit() 
+                                        return_to_main()
+                                        pygame.quit()
 
  
 	
@@ -167,6 +175,7 @@ while True:
                         if event.key == pygame.K_RIGHT:
                                change_to = 'RIGHT'
                 if event.type == pygame.QUIT:
+                        return_to_main()
                         pygame.quit()
         # If two keys pressed simultaneously
         # we don't want snake to move into two 

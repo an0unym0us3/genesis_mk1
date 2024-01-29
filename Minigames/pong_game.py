@@ -40,12 +40,14 @@ font = pygame.font.Font(None, 36)
 victory_screen = font.render("Player ONE Wins!", True, WHITE)
 defeat_screen = font.render("Player TWO Wins!", True, WHITE)
 
+def return_to_main():
+    import collisionA
+
 # Game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+            return_to_main()
 
     # Handle player input for Player 1
     keys = pygame.key.get_pressed()
@@ -104,14 +106,14 @@ while True:
         screen.blit(victory_screen, (WIDTH // 2 - victory_screen.get_width() // 2, HEIGHT // 2 - victory_screen.get_height() // 2))
         pygame.display.flip()
         pygame.time.delay(2000)  # Delay for 2 seconds before exiting
-        pygame.quit()
+        return_to_main()
         sys.exit()
 
     elif right_score == 5:
         screen.blit(defeat_screen, (WIDTH // 2 - defeat_screen.get_width() // 2, HEIGHT // 2 - defeat_screen.get_height() // 2))
         pygame.display.flip()
         pygame.time.delay(2000)  # Delay for 2 seconds before exiting
-        pygame.quit()
+        return_to_main()
         sys.exit()
 
     # Update the display
