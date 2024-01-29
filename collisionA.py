@@ -392,11 +392,14 @@ class Gun(pg.sprite.Sprite):
     def reload(self, full=False):
         if full:
            self.ammo = [self.AMMO[0], self.AMMO[1]]
-        else:
-            if self.ammo[0]<self.AMMO[0]:
-                if self.ammo[1]< self.AMMO[0]:
-                    if self.ammo[1]>0:
+        elif self.ammo[0] < self.AMMO[0]:
+                if self.ammo[1]<self.AMMO[0]:
+                    if self.ammo[0]+self.ammo[1] > self.AMMO[0]:
+                        self.ammo = [self.AMMO[0], self.ammo[1]+self.ammo[0]-self.AMMO[0]]
+                    elif self.ammo[0] == 0:
                         self.ammo = [self.ammo[1], 0]
+                    else:
+                        self.ammo = [self.ammo[0] + self.ammo[1], 0]
                 else:
                     self.ammo = [self.AMMO[0], self.ammo[1]-self.AMMO[0]+self.ammo[0]]
         
@@ -514,7 +517,7 @@ class UI():
         display.blit(ammo_display, (window_w-200, window_h-60))
         
         blit_coin = pg.transform.scale(coin_img, (75,75))
-        coin_display = ui_font.render(str(score), False, (150,100,0))
+        coin_display = ui_font.render(str(score), False, (250,200,100),(150,100,0))
         display.blit(coin_display, (window_w-160, 10))
         display.blit(blit_coin, (window_w-260, 10))
     
