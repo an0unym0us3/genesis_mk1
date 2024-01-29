@@ -626,7 +626,7 @@ ghost_2 = Ghost()
 ghost_3 = Ghost()
 ghosts = [ghost_1, ghost_2, ghost_3]
 
-VICTORY_SCORE = 5
+VICTORY_SCORE = 50
 
 while game_run:
     for event in pg.event.get():
@@ -639,7 +639,9 @@ while game_run:
     if data["score"] >= VICTORY_SCORE:
         print("You win!")
         from victory import draw_victory_screen
-
+    if player.health<=0:
+        print("You lose!")
+        from defeat import draw_defeat_screen
     keys = pg.key.get_pressed()
     player.update(keys, mouse_event, map, gun, *objects.values())
     # player.update(keys, map, gun, *objects.values())

@@ -21,7 +21,7 @@ pygame.display.set_caption("Defeat Screen")
 font = pygame.font.Font(None, 100)
 
 # Load background image
-background_image = pygame.image.load("Defeat.png")
+background_image = pygame.image.load("Media/images/Defeat.png")
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
 def draw_defeat_screen():
