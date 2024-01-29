@@ -121,7 +121,7 @@ def do_play(board):
 
 
 # Main game loop
-def run_game():
+def run_game(score):
     board = ['' for _ in range(side_cell * side_cell)]
     player_turn = 'X'
 
@@ -179,13 +179,14 @@ def run_game():
                 draw_player(index, 'O')
 
         draw_text(f"Turn: {player_turn}", font, font_color, screen_w // 2, screen_h - 20)
+        draw_text(f"Score: {score}", font, font_color, screen_w // 2, 20)
 
         pygame.display.flip()
         clock.tick(10)
 
 score = 0
 for i in range(3):
-    score += run_game()
+    score += run_game(score)
     print(score)
 
 return_to_main()
