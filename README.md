@@ -21,7 +21,8 @@ Consists of:
    More to be added in the future~
 
 
-supposedly the town is haunted with ghosts and theyre gonna take over the town in the next 10 minutes, you as the protagonist should stop this from happening by... scoring points??
+In a town haunted by ghosts and under the imminent threat of the malevolent Ghost King, you, the protagonist, have just ten minutes to thwart their spectral conquest. The Ghost King challenges the town's original residents, promising their salvation if someone can defeat him in one-on-one combat. To stand a chance, you must acquire the ultimate weapon, a powerful artifact capable of banishing the spectral threat.
 
-Apparently the ghost king challenged the original town people to get their town back; If someone can win him on a one to one fight he and his goons will flee the town for good.
-You can do so by getting the ultimate weapon. This weapon can be bought (idea: crafted by getting certain items) by the points that you have accumulated, by playing minigames that give coins, finding coins scattered throughout the map, and kiling ghost soldiers, etc idk what else someone send help
+This extraordinary weapon isn't given freely but can be obtained by accumulating points strategically. Points can be earned through various means, including participating in skill-testing minigames for valuable coins, scavenging coins scattered throughout the town, and bravely confronting and defeating ghostly soldiers in key locations.
+
+Alternatively, you can gather specific items scattered across the spectral landscape to craft the ultimate weapon. The essence of this challenging quest lies in the interplay between acquiring points, strategically collecting resources, and facing spectral adversaries. As the minutes tick away, urgency builds, compelling you to navigate the haunted town with skill and strategy, ensuring the defeat of the Ghost King and the preservation of the town's sanctity.
