@@ -1,7 +1,6 @@
 import pygame
 import random
 import time
-import json
 
 pygame.init()
 
@@ -24,11 +23,6 @@ font = pygame.font.Font(None, 36)
 
 
 def return_to_main():
-    with open("./data/saved.json", "r") as file:
-        data = json.load(file)
-    data["score"] += win*50
-    with open("./data/saved.json", "w") as outfile:
-        json.dump(data, outfile)
     import collisionA
 
 # draw the grid
@@ -127,67 +121,72 @@ def do_play(board):
 
 
 # Main game loop
-board = ['' for _ in range(side_cell * side_cell)]
-player_turn = 'X'
+def run_game():
+    board = ['' for _ in range(side_cell * side_cell)]
+    player_turn = 'X'
 
-clock = pygame.time.Clock()
-running = True
-while running:
-    mouse_event = False
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN and player_turn == 'X':
-            mouse_event = event.dict
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        mouse_event = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN and player_turn == 'X':
+                mouse_event = event.dict
 
-    # Human plays
-    if player_turn == 'X':
-        if mouse_event:
-            clicked_index = (mouse_event['pos'][1] // cell_size) * side_cell + mouse_event['pos'][0] // cell_size
+        # Human plays
+        if player_turn == 'X':
+            if mouse_event:
+                clicked_index = (mouse_event['pos'][1] // cell_size) * side_cell + mouse_event['pos'][0] // cell_size
 
-            if board[clicked_index] == '':
-                board[clicked_index] = 'X'
-                if check_win(board, 'X'):
-                    win=1
-                    print("Player X wins!")
-                    running = False
-                elif check_full(board):
-                    win=0
-                    print("It's a draw!")
-                    running = False
+                if board[clicked_index] == '':
+                    board[clicked_index] = 'X'
+                    if check_win(board, 'X'):
+                        print("Player X wins!")
+                        return 10
+                        #running = False
+                    elif check_full(board):
+                        print("It's a draw!")
+                        return 0
+                        #running = False
 
-                player_turn = 'O'
+                    player_turn = 'O'
 
-    # Bot plays
-    else:
-        board[do_play(board)] = 'O'
-        if check_win(board, 'O'):
-            win=-1
-            print("Player O wins!")
-            running = False
+        # Bot plays
+        else:
+            board[do_play(board)] = 'O'
+            if check_win(board, 'O'):
+                print("Player O wins!")
+                return -10
+                #running = False
 
-        elif check_full(board):
-            win=0
-            print("It's a draw!")
-            running = False
+            elif check_full(board):
+                print("It's a draw!")
+                return 0
+                #running = False
 
-        player_turn = 'X'
+            player_turn = 'X'
 
-    # Draw the UI
-    screen.fill(bg_color)
-    draw_grid()
+        # Draw the UI
+        screen.fill(bg_color)
+        draw_grid()
 
-    for index in range(side_cell **2):
-        if board[index] == 'X':
-            draw_player(index, 'X')
-        elif board[index] == 'O':
-            draw_player(index, 'O')
+        for index in range(side_cell **2):
+            if board[index] == 'X':
+                draw_player(index, 'X')
+            elif board[index] == 'O':
+                draw_player(index, 'O')
 
-    draw_text(f"Turn: {player_turn}", font, font_color, screen_w // 2, screen_h - 20)
+        draw_text(f"Turn: {player_turn}", font, font_color, screen_w // 2, screen_h - 20)
 
-    pygame.display.flip()
-    clock.tick(10)
+        pygame.display.flip()
+        clock.tick(10)
 
-win=0
+score = 0
+for i in range(3):
+    score += run_game()
+    print(score)
+
 return_to_main()
 quit()
