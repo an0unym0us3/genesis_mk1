@@ -561,9 +561,14 @@ objects = dict()
 coins = list()
 
 house_bottom = Object([475, 314], [528, 360])
-house_top = Object([170, 170], [228, 217])
-objects["house_top"]=house_top
+snake_door = Object([478, 358], [497, 361], collide=False, minigame="snake_game")
 objects["house_bottom"]=house_bottom
+objects["snake_door"] = snake_door
+
+house_top = Object([170, 170], [228, 217])
+pong_door = Object([174, 216], [193, 220], collide=False, minigame="pong_game")
+objects["house_top"]=house_top
+objects["pong_door"] = pong_door
 
 trees_1 = Object([207,344], [238, 349])
 trees_2 = Object([625, 312], [652, 319])
@@ -575,37 +580,39 @@ objects["board"] = board
 
 health = Object([243, 180], [315, 228])
 health_door = Object([270, 226], [290, 234], name="health")
-mart = Object([321, 196], [403, 248])
-mart_door = Object([348, 241], [371, 261], name="mart")
 objects["health"] = health
 objects['health_door'] = health_door
+mart = Object([321, 196], [403, 248])
+mart_door = Object([348, 248], [371, 251], name="mart")
 objects["mart"]=mart
 objects['mart_door'] = mart_door
 
 big_house = Object([566, 170],[654, 230])
-objects["big_house"]=big_house
-
-block_1 = Object([400,0], [458,194])
-block_2 = Object([460,86], [587,100])
-block_3 = Object([590,0], [800,187])    
-block_4 = Object([0,134], [165, 165])
-
-forest_1 = Object([0,200], [120,480], collide=False)
-objects["forest_1"] = forest_1
-
-snake_door = Object([478, 358], [497, 361], collide=False, minigame="snake_game")
-pong_door = Object([174, 216], [193, 220], collide=False, minigame="pong_game")
 ttt_door = Object([574, 230], [593, 240], collide=False, minigame="TicTacToe_game")
-objects["snake_door"] = snake_door
-objects["pong_door"] = pong_door
+objects["big_house"]=big_house
 objects["ttt_door"] = ttt_door
 
+# block_1 = Object([400,0], [458,194])
+# block_2 = Object([460,86], [587,100])
+# block_3 = Object([590,0], [800,187])
+#block_4 = Object([0,134], [165, 165])
+# objects["block_1"] = block_1
+# objects["block_2"] = block_2
+# objects["block_3"] = block_3
+#objects["block_4"] = block_4
 
-objects["block_1"] = block_1
-objects["block_2"] = block_2
-objects["block_3"] = block_3
-objects["block_4"] = block_4
+beach_rock_1 = Object([0,64], [190, 98])
+objects['beach_rock_1'] = beach_rock_1
+beach_rock_2 = Object([134, 98], [348, 148])
+objects['beach_rock_2'] = beach_rock_2
+beach_rock_3 = Object([348, 120], [464, 152])
+objects['beach_rock_3'] = beach_rock_3
+beach_rock_4 = Object([549, 132], [799, 175])
+objects['beach_rock_4'] = beach_rock_4
 
+
+# forest_1 = Object([0,200], [120,480], collide=False)
+# objects["forest_1"] = forest_1
 
 
 
