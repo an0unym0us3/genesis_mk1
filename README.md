@@ -1,5 +1,7 @@
 # genesis_mk1
 It's a cool 2d game, trust us
+Report Link: https://docs.google.com/document/d/1ukpDNhVz5gWL39_6IJhdnhYqC7dfh7p10QsQpIMA5wM/edit
+
 
 Player sprite Nomenclature:
 Xplayer_ZYf
