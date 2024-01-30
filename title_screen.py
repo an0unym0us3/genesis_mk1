@@ -64,7 +64,7 @@ title_button.topleft = (original_x + 40, original_y - 100)
 title_color = (0, 0, 0)  # black background
 title_font_size = 60
 title_font = pygame.font.Font(pygame.font.match_font('courier'), title_font_size)
-title_text = "SOULBOUND"
+title_text = "GHOSTBOUND"
 
 data = {"score": 0, "played_count": 0, "minigames_played" : []}
 with open("./data/saved.json", "w") as outfile:
