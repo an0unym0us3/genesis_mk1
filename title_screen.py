@@ -12,7 +12,7 @@ pygame.mixer.music.play(-1)
 
 
 # Set the title of the display window
-pygame.display.set_caption("My Pygame Window")
+pygame.display.set_caption("Menu")
 
 screen = pygame.display.set_mode((1280, 720))
 
@@ -64,7 +64,7 @@ title_button.topleft = (original_x + 40, original_y - 100)
 title_color = (0, 0, 0)  # black background
 title_font_size = 60
 title_font = pygame.font.Font(pygame.font.match_font('courier'), title_font_size)
-title_text = "FALSHSTORM"
+title_text = "SOULBOUND"
 
 data = {"score": 0, "played_count": 0, "minigames_played" : []}
 with open("./data/saved.json", "w") as outfile:
