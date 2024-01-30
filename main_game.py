@@ -541,7 +541,7 @@ class UI():
 def run_minigame(name):
     global data
     print(data)
-    if name not in data["minigames_played"] and data["played_count"]<=1:
+    if name not in data["minigames_played"] and data["played_count"]<1:
         print(data)
         with open("./data/saved.json", "w") as outfile:
             json.dump(data, outfile)
