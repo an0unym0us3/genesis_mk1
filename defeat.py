@@ -5,8 +5,8 @@ import sys
 pygame.init()
 
 # Set up screen
-screen_width = 800
-screen_height = 600
+screen_width = 1280
+screen_height = 720
 
 # Set up colors with transparency
 white = (255, 255, 255)
