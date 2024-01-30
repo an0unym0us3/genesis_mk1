@@ -143,7 +143,8 @@ def run_game(score, this_game, total_games):
         mouse_event = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                # running = False
+                return 0
             if event.type == pygame.MOUSEBUTTONDOWN and player_turn == 'X':
                 mouse_event = event.dict
 
@@ -201,11 +202,7 @@ def run_game(score, this_game, total_games):
 score = 0
 games = 3
 for i in range(games):
-    x = run_game(score, i, games)
-    if x == None:
-        return_to_main()
-    else:
-        score += run_game(score, i, games)
+    score += run_game(score, i, games)
     print(score)
 
 return_to_main()
