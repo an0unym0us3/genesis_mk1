@@ -660,8 +660,8 @@ while game_run:
         ghost.update_ghost()
 
 
-    text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w}  ", False, (200, 255, 200), (70,100,80))
-    display.blit(text_surface, (0, window_h-24))
+    #text_surface = my_font.render(f"Score: {data}, Global: {global_pos}, Speed: {player.speed}, Mouse: {pg.mouse.get_pos()} Map:{map.w}  ", False, (200, 255, 200), (70,100,80))
+    #display.blit(text_surface, (0, window_h-24))
     player.blit()
     map.transp_blit()
     if player.health<100:
