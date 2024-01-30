@@ -529,7 +529,7 @@ class UI():
         ammo_display = ui_font.render(f"{ammo[0]}/{ammo[1]}", False, (250, 150, 150), (100, 50, 50))
         display.blit(ammo_display, (window_w-200, window_h-100))
 
-        minigames_display = small_ui_font.render(f"Minigames: {games}/2", False, (200, 200, 200), (100, 100, 100))
+        minigames_display = small_ui_font.render(f"Minigames: {games}/1", False, (200, 200, 200), (100, 100, 100))
         display.blit(minigames_display, (window_w-245, window_h-35))
 
 
@@ -541,7 +541,7 @@ class UI():
 def run_minigame(name):
     global data
     print(data)
-    if name not in data["minigames_played"] and data["played_count"]<=2:
+    if name not in data["minigames_played"] and data["played_count"]<=1:
         print(data)
         with open("./data/saved.json", "w") as outfile:
             json.dump(data, outfile)
