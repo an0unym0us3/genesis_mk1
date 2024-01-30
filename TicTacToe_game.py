@@ -60,7 +60,7 @@ def check_win(board, symbol):
     # Check rows and columns
     for i in range(side_cell):
         row_start = i * side_cell
-        if set(board[row_start: row_start + side_cell]) == set(symbol) or set([board[0 + i], board[3 + i], board[6 + i]]) == set(symbol):
+        if set(board[row_start: row_start + side_cell]) == set(symbol) or {board[0 + i], board[3 + i], board[6 + i]} == set(symbol):
             return True
 
     # Check diagonals
