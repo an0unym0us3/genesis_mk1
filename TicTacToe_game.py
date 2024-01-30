@@ -1,6 +1,8 @@
 import pygame
 import random
 import time
+import json
+import sys
 
 pygame.init()
 
@@ -23,7 +25,16 @@ font = pygame.font.Font(None, 36)
 
 
 def return_to_main():
-    import collisionA
+    
+    with open("./data/saved.json", "r") as file:
+        data = json.load(file)
+    data["score"] += score
+    data["played_count"] += 1
+    data["minigames_played"].append('snake_game')
+    with open("./data/saved.json", "w") as outfile:
+        json.dump(data, outfile)
+    import main_game
+    sys.exit()
     quit()
 
 # draw the grid

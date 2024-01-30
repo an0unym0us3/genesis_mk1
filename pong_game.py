@@ -46,7 +46,6 @@ def update_coins(score):
         data = json.load(file)
 
     data["score"] += score
-    data["played_count"] += 1
 
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
@@ -58,7 +57,7 @@ def return_to_main():
     data["minigames_played"].append('pong_game')
     with open("./data/saved.json", "w") as outfile:
         json.dump(data, outfile)
-    import collisionA
+    import main_game
     sys.exit()
 
 # Game loop

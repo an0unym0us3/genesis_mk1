@@ -80,7 +80,7 @@ while running:
                     print("Start button clicked!")
                     # You can add functionality for the Start button here
                     pygame.quit()
-                    subprocess.run(['python', 'collisionA.py'])
+                    subprocess.run(['python', 'main_game.py'])
                     sys.exit()
                 elif exit_button.collidepoint(event.pos):
                     print("Exit button clicked!")

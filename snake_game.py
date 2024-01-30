@@ -1,256 +1,184 @@
-# importing libraries
 import pygame
-import time
 import random
 import json
 import sys
 
-
-snake_speed = 15
-
-# Window size
-window_x = 720
-window_y = 480
-res = (720,720)
-# defining colors
-black = pygame.Color(0, 0, 0)
-white = pygame.Color(255, 255, 255)
-red = pygame.Color(255, 0, 0)
-green = pygame.Color(0, 255, 0)
-blue = pygame.Color(0, 0, 255)
-
-# Initialising pygame
+# Initialize Pygame
 pygame.init()
 
-# Initialise game window
-pygame.display.set_caption('Minigame: Snakes')
-game_window = pygame.display.set_mode((window_x, window_y))
+# Display Dimensions
+dis_width, dis_height = 800, 600
+dis = pygame.display.set_mode((dis_width, dis_height))
+pygame.display.set_caption('Snake Game')
 
-# FPS (frames per second) controller
-fps = pygame.time.Clock()
+# Colors
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (213, 50, 80)
+green = (0, 255, 0)
+blue = (50, 153, 213)
 
-# defining snake default position
-snake_position = [100, 50]
+# Snake and Food Sizes
+block_size = 20
 
-# defining first 4 blocks of snake body
-snake_body = [[100, 50],
-			[90, 50],
-			[80, 50],
-			[70, 50]
-			]
-# fruit position
-fruit_position = [random.randrange(1, (window_x//10)) * 10, 
-				random.randrange(1, (window_y//10)) * 10]
+# Font Style
+font_style = pygame.font.SysFont(None, 50)
 
-fruit_spawn = True
+# Game Speed
+snake_speed = 15
+clock = pygame.time.Clock()
 
-# setting default snake direction towards
-# right
-direction = 'RIGHT'
-change_to = direction
+SA = pygame.mixer.Sound("./Media/music/Sneaky Adventure.mp3")
+chipi=pygame.mixer.Sound("./Media/music/Chipi.mp3")
 
-# initial score
-score = 0
-# opens up a window 
-screen = pygame.display.set_mode(res)
-# white color 
-color = (255,255,255) 
-
-# light shade of the button 
-color_light = (170,170,170) 
-
-# dark shade of the button 
-color_dark = (100,100,100) 
-
-# stores the width of the 
-# screen into a variable 
-width = screen.get_width() 
-
-# stores the height of the 
-# screen into a variable 
-height = screen.get_height() 
-
-# defining a font 
-smallfont = pygame.font.SysFont('Corbel',35) 
-
-# rendering a text written in 
-# this font 
-text = smallfont.render('quit' , True , color)
+global_score = 0
 
 def return_to_main():
-        with open("./data/saved.json", "r") as file:
-                data = json.load(file)
-        data["score"] += score
-        data["played_count"] += 1
-        data["minigames_played"].append('snake_game')
-        with open("./data/saved.json", "w") as outfile:
-                json.dump(data, outfile)
-        import collisionA
-                # importlib.reload(collisionA)
-        sys.exit()
+    global global_score
+    with open("./data/saved.json", "r") as file:
+        data = json.load(file)
+    data["score"] += global_score
+    data["played_count"] += 1
+    data["minigames_played"].append('snake_game')
+    with open("./data/saved.json", "w") as outfile:
+        json.dump(data, outfile)
+    import main_game
+    sys.exit()
 
-# displaying Score function
-def show_score(choice, color, font, size):
+# Score Display
+def your_score(score):
+    value = font_style.render("Your Score: " + str(score), True, white)
+    dis.blit(value, [0, 0])
 
-	# creating font object score_font
-	score_font = pygame.font.SysFont(font, size)
-	
-	# create the display surface object 
-	# score_surface
-	score_surface = score_font.render('Score : ' + str(score), True, color)
-	
-	# create a rectangular object for the text
-	# surface object
-	score_rect = score_surface.get_rect()
-	
-	# displaying text
-	game_window.blit(score_surface, score_rect)
 
-# game over function
-def game_over():
+# Draw the snake
+def our_snake(snake_block, snake_list):
+    for x in snake_list:
+        pygame.draw.rect(dis, green, [x[0], x[1], snake_block, snake_block])
 
-	# creating font object my_font
-	my_font = pygame.font.SysFont('times new roman', 50)
-	
-	# creating a text surface on which text 
-	# will be drawn
-	game_over_surface = my_font.render(
-		'Your Score is : ' + str(score), True, red)
-	
-	# create a rectangular object for the text 
-	# surface object
-	game_over_rect = game_over_surface.get_rect()
-	
-	# setting position of the text
-	game_over_rect.midtop = (window_x/2, window_y/4)
-	
-	# blit will draw the text on screen
-	game_window.blit(game_over_surface, game_over_rect)
-	pygame.display.flip()
-	
-	
-	# deactivating pygame library
-	while True: 
-	
-		for ev in pygame.event.get(): 
-		
-			if ev.type == pygame.QUIT: 
-                                return_to_main()
-                                sys.exit()
-			
-                        #checks if a mouse is clicked 
-			if ev.type == pygame.MOUSEBUTTONDOWN: 
-                                #if the mouse is clicked on the 
-                                # button the game is terminated 
-				if width/2 <= mouse[0] <= width/2+140 and height/2 <= mouse[1] <= height/2+40: 
-                                        return_to_main()
-                                        sys.exit()
 
- 
-	
-                # stores the (x,y) coordinates into 
-                # the variable as a tuple 
-		mouse = pygame.mouse.get_pos() 
-	
-                # if mouse is hovered on a button it 
-                # changes to lighter shade 
-		if width/2 <= mouse[0] <= width/2+140 and height/2 <= mouse[1] <= height/2+40: 
-			pygame.draw.rect(screen,color_light,[width/2,height/2,140,40]) 
-		
-		else: 
-			pygame.draw.rect(screen,color_dark,[width/2,height/2,140,40]) 
-	
-                # superimposing the text onto our button 
-		screen.blit(text , (width/2+50,height/2)) 
-	
-                # updates the frames of the game 
-		pygame.display.update() 
+# Display Message
+def message(msg, color):
+    mesg = font_style.render(msg, True, color)
+    dis.blit(mesg, [dis_width / 6, dis_height / 3])
 
-                 
-#Main game
-while True:
-	# handling key events
-        for event in pygame.event.get():
+
+# Game Loop
+def gameLoop():
+    game_over = False
+    game_close = False
+    game_win = False
+
+    x1, y1 = dis_width / 2, dis_height / 2
+    x1_change, y1_change = 0, 0
+
+    snake_list = []
+    length_of_snake = 1
+
+    foodx = round(random.randrange(0, dis_width - block_size) / 20.0) * 20.0
+    foody = round(random.randrange(0, dis_height - block_size) / 20.0) * 20.0
+
+    pygame.mixer.music.load('./Media/music/PewPew.mp3')
+    pygame.mixer.music.play(-1)
+
+    while not game_over:
+        pygame.mixer.Sound.stop(SA)
+        while game_close:
+
+            pygame.mixer.Sound.play(SA)
+            pygame.mixer.music.stop()
+            dis.fill(blue)
+            message("You Lost! Press Q-Quit or C-Play Again", red)
+            your_score(length_of_snake - 1)
+            pygame.display.update()
+
+
+            for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_UP:
-                                change_to = 'UP'
-                        if event.key == pygame.K_DOWN:
-                                change_to = 'DOWN'
-                        if event.key == pygame.K_LEFT:
-                                change_to = 'LEFT'
-                        if event.key == pygame.K_RIGHT:
-                               change_to = 'RIGHT'
-                if event.type == pygame.QUIT:
+                    if event.key == pygame.K_q:
+                        game_over = True
+                        game_close = False
+                    if event.key == pygame.K_c:
+                        gameLoop()
+
+        while game_win:
+            pygame.mixer.Sound.play(chipi)
+            pygame.mixer.music.stop()
+            dis.fill(blue)
+            message("You WIN! Press Q-Quit or C-Play Again", green)
+            your_score(length_of_snake-1)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        pygame.quit()
                         return_to_main()
-                        sys.exit()
-        # If two keys pressed simultaneously
-        # we don't want snake to move into two 
-        # directions simultaneously
-        if change_to == 'UP' and direction != 'DOWN':
-                direction = 'UP'
-        if change_to == 'DOWN' and direction != 'UP':
-                direction = 'DOWN'
-        if change_to == 'LEFT' and direction != 'RIGHT':
-                direction = 'LEFT'
-        if change_to == 'RIGHT' and direction != 'LEFT':
-                direction = 'RIGHT'
+                        quit()
+                    if event.key == pygame.K_c:
+                        gameLoop()
 
-        # Moving the snake
-        if direction == 'UP':
-                snake_position[1] -= 10
-        if direction == 'DOWN':
-                snake_position[1] += 10
-        if direction == 'LEFT':
-                snake_position[0] -= 10
-        if direction == 'RIGHT':
-                snake_position[0] += 10
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    x1_change = -block_size
+                    y1_change = 0
+                elif event.key == pygame.K_RIGHT:
+                    x1_change = block_size
+                    y1_change = 0
+                elif event.key == pygame.K_UP:
+                    y1_change = -block_size
+                    x1_change = 0
+                elif event.key == pygame.K_DOWN:
+                    y1_change = block_size
+                    x1_change = 0
 
-        # Snake body growing mechanism
-        # if fruits and snakes collide then scores
-        # will be incremented by 10
-        snake_body.insert(0, list(snake_position))
-        if snake_position[0] == fruit_position[0] and snake_position[1] == fruit_position[1]:
-                score += 10
-                fruit_spawn = False
-        else:
-                snake_body.pop()
-		
-        if not fruit_spawn:
-                fruit_position = [random.randrange(1, (window_x//10)) * 10, 
-						random.randrange(1, (window_y//10)) * 10]
-		
-        fruit_spawn = True
-        game_window.fill(black)
-	
-        for pos in snake_body:
-                pygame.draw.rect(game_window, green,
-                        pygame.Rect(pos[0], pos[1], 10, 10))
-                pygame.draw.rect(game_window, white, pygame.Rect(
-                        fruit_position[0], fruit_position[1], 10, 10))
+        if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
+            game_close = True
 
-        # Game Over conditions
-        if snake_position[0] < 0 or snake_position[0] > window_x-10:
-                  game_over()
-                        
-        if snake_position[1] < 0 or snake_position[1] > window_y-10:
-                        game_over()
-                        
-        # Touching the snake body
-        for block in snake_body[1:]:
-                if snake_position[0] == block[0] and snake_position[1] == block[1]:
-                        game_over()
-                      
 
-        # displaying score continuously
-        show_score(1, white, 'times new roman', 20)
+        x1 += x1_change
+        y1 += y1_change
+        dis.fill(black)
+        pygame.draw.rect(dis, white, [foodx, foody, block_size, block_size])
 
-        # Refresh game screen
+        snake_head = []
+        snake_head.append(x1)
+        snake_head.append(y1)
+        snake_list.append(snake_head)
+
+        if len(snake_list) > length_of_snake:
+            del snake_list[0]
+
+        for x in snake_list[:-1]:
+            if x == snake_head:
+                game_close = True
+
+        if length_of_snake==11:
+            game_win=True
+
+        our_snake(block_size, snake_list)
+        your_score(length_of_snake - 1)
         pygame.display.update()
 
-        # Frame Per Second /Refresh Rate
-        fps.tick(snake_speed)
+        if x1 == foodx and y1 == foody:
+            global global_score
+            foodx = round(random.randrange(0, dis_width - block_size) / 20.0) * 20.0
+            foody = round(random.randrange(0, dis_height - block_size) / 20.0) * 20.0
+            length_of_snake += 1
+            global_score+=10
+
+        clock.tick(snake_speed)
 
 
-return_to_main()
-game_run=True
 
+
+    pygame.quit()
+    return_to_main()
+    quit()
+
+
+# Start the game
+gameLoop()

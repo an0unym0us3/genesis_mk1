@@ -533,15 +533,15 @@ class UI():
         display.blit(minigames_display, (window_w-245, window_h-35))
 
 
-        blit_coin = pg.transform.scale(coin_img, (75,75))
-        coin_display = ui_font.render(str(score), False, (150,100,0))
-        display.blit(coin_display, (window_w-160, 10))
-        display.blit(blit_coin, (window_w-260, 10))
+        blit_coin = pg.transform.scale(coin_img, (50,50))
+        coin_display = small_ui_font.render(f"{score}/{VICTORY_SCORE}", False, (150,100,0))
+        display.blit(coin_display, (window_w-160, 20))
+        display.blit(blit_coin, (window_w-220, 10))
 
 def run_minigame(name):
     global data
     print(data)
-    if name not in data["minigames_played"] and data["played_count"]>=0:
+    if name not in data["minigames_played"] and data["played_count"]<=2:
         print(data)
         with open("./data/saved.json", "w") as outfile:
             json.dump(data, outfile)
@@ -626,7 +626,7 @@ ghost_2 = Ghost()
 ghost_3 = Ghost()
 ghosts = [ghost_1, ghost_2, ghost_3]
 
-VICTORY_SCORE = 50
+VICTORY_SCORE = 100
 
 while game_run:
     for event in pg.event.get():
