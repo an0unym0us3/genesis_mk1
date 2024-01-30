@@ -64,8 +64,7 @@ def check_win(board, symbol):
             return True
 
     # Check diagonals
-    if all(board[i * side_cell + i] == symbol for i in range(side_cell)) or all(
-            board[i * side_cell + side_cell - i - 1] == symbol for i in range(side_cell)):
+    if set(board[::side_cell+1]) == set(symbol) or set(board[side_cell-1:side_cell**2 -1:side_cell-1]) == set(symbol):
         return True
 
     return False
