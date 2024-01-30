@@ -295,7 +295,7 @@ class Object(pg.sprite.Sprite):
 
     def update(self):
         global player
-        pg.draw.rect(display, (255,255,255),object.rect)
+        #pg.draw.rect(display, (255,255,255),object.rect)
         self.rect.x, self.rect.y = player.blit_pos.x+(self.left-global_pos[0]) + player.w/2, player.blit_pos.y+(self.top-global_pos[1])+player.h/2
         #pg.draw.rect(display, self.color, self.rect)
 
