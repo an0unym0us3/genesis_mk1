@@ -95,7 +95,7 @@ while running:
                         screen.fill("black")
 
                         #render credits text
-                        credtext='''TEAM GENESIS_MK1: ADIT MANAV RAYHAAN MURSHID NEIL'''
+                        credtext='''TEAM GENESIS_MK1: ADIT MANAV RAYHAN MURSHID NEIL'''
                         credits_text_surface=startfont.render(credtext, True, (255,255,255))
 
                         #getting the rectangle
